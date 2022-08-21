@@ -1,16 +1,8 @@
-# huntis
+# Huntis
 
-A homework planner that integrates with webuntis
+A homework planner that integrates with WebUntis
 
-## Getting Started
+## Credits
+[Calendar](https://github.com/aleksanderwozniak/table_calendar)
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[Untis API Wrapper](https://github.com/IsAvaible/dart-webuntis)
