@@ -28,6 +28,8 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   table_calendar:
+  http: ^0.13.4
+  string_similarity: ^2.0.0
   flutter:
     sdk: flutter
 
