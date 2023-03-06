@@ -1,10 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:huntis/untis.dart';
+import 'package:huntis/untis_api.dart';
+import 'package:huntis/auth/secrets.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  const Calendar({Key? key, required this.untis}) : super(key: key);
+  final Untis untis;
 
   @override
   State<StatefulWidget> createState() => _CalendarState();
@@ -36,14 +38,18 @@ class _CalendarState extends State<Calendar> {
 
   Future<List<Period>> _initTimeTable() async {
     untisSession = await Session.init(
-        'ajax.webuntis.com', // Server
-        'lindengym-gummersbach', // School
-        'GuittoTit', // Username
-        '''<&5o'02d]CmimV"x-Z\$3\$1U~<\\7D;'''); // Password
+        unitsCredentials['server']!,
+        unitsCredentials['school']!,
+        unitsCredentials['username']!,
+        unitsCredentials['password']!);
+    untisSession.cacheDisposeTime = 15;
+    untisSession.cacheLengthMaximum = 40; // Twice the default (?)
     allSubjects = await untisSession.getSubjects(); // TODO: Move to own func
     var userId = untisSession.userId;
     return await untisSession.getTimetable(userId!,
-        startDate: DateTime(2022, 8, 22), endDate: DateTime(2023, 5, 30));
+        startDate: DateTime(2022, 8, 22),
+        endDate: DateTime(2023, 5, 30),
+        useCache: true);
   }
 
   String _getSubject(int id) {
@@ -60,7 +66,6 @@ class _CalendarState extends State<Calendar> {
       }
     }
 
-    //print("Periods for $day: $periods");
     return periods;
   }
 
@@ -73,8 +78,9 @@ class _CalendarState extends State<Calendar> {
           firstDay: DateTime(2022, 8, 10),
           lastDay: DateTime(2023, 5, 30),
           startingDayOfWeek: StartingDayOfWeek.monday,
-          eventLoader: _getEventsForDay,
+          // eventLoader: untis,
           calendarFormat: calendarFormat,
+          weekendDays: const [DateTime.saturday, DateTime.sunday],
           availableCalendarFormats: const {
             CalendarFormat.week: 'Week',
             CalendarFormat.twoWeeks: 'Two Weeks',
@@ -112,10 +118,10 @@ class _CalendarState extends State<Calendar> {
             builder: (context, value, _) {
               return ListView.builder(
                 itemCount: value.length,
+                shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return Text(_getSubject(value[index].subjectIds[0].id));
                 },
-                shrinkWrap: true,
               );
             },
           ),

@@ -1,4 +1,4 @@
-# Huntis
+# HUntis
 
 A homework planner that integrates with WebUntis
 
