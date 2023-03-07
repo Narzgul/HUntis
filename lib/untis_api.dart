@@ -144,7 +144,19 @@ class Session {
         }),
         useCache: useCache);
 
-    return _parseTimetable(rawTimetable);
+    List<Period> timetable = _parseTimetable(rawTimetable);
+
+    // Search for all corresponding names
+    List<Subject> allSubjects = await getSubjects();
+    for (Period period in timetable) {
+      if (period.subjectIds.isNotEmpty) {
+        int id = period.subjectIds[0].id;
+        period.name =
+            allSubjects.where((element) => element.id.id == id).first.name;
+      }
+    }
+
+    return timetable;
   }
 
   List<Period> _parseTimetable(List<dynamic> rawTimetable) {
@@ -169,6 +181,7 @@ class Session {
               : null);
       return Period._(
         period["id"] as int,
+        'NoName',
         DateTime.parse(
             "${period["date"]} ${period["startTime"].toString().padLeft(4, "0")}"),
         DateTime.parse(
@@ -433,9 +446,11 @@ class Period {
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
   final bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
+  String name;
 
   Period._(
       this.id,
+      this.name,
       this.startTime,
       this.endTime,
       this.klassenIds,
@@ -449,19 +464,22 @@ class Period {
       this.lessonText,
       this.statflags);
 
+  void setName(String name) {
+    this.name = name;
+  }
+
   String getStartEndTime() {
     return '${startTime.hour}:${startTime.minute} '
         '- ${endTime.hour}:${endTime.minute}';
   }
 
   @override
-  String toString() =>
-      "Period<id:$id, startTime:$startTime, endTime:$endTime, "
-          "isCancelled:$isCancelled, klassenIds:$klassenIds, "
-          "teacherIds:$teacherIds, subjectIds:$subjectIds, "
-          "roomIds:$roomIds, activityType:$activityType, "
-          "code:$activityType, type:$type, lessonText:$lessonText, "
-          "statflags:$statflags>";
+  String toString() => "Period<id:$id, startTime:$startTime, endTime:$endTime, "
+      "isCancelled:$isCancelled, klassenIds:$klassenIds, "
+      "teacherIds:$teacherIds, subjectIds:$subjectIds, "
+      "roomIds:$roomIds, activityType:$activityType, "
+      "code:$activityType, type:$type, lessonText:$lessonText, "
+      "statflags:$statflags>";
 }
 
 class Subject {

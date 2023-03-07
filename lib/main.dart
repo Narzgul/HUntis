@@ -34,18 +34,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: Center(
-        child: Calendar(untis: untis,),
+        child: Calendar(
+          untis: untis,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Add',
-        onPressed: () {
-        },
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
     );

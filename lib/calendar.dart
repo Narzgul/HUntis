@@ -18,9 +18,8 @@ class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  DateTime _selectedDay = DateTime.now();
   late Session untisSession;
-  late List<Subject> allSubjects;
 
   List<Period> timetable = [];
 
@@ -46,25 +45,20 @@ class _CalendarState extends State<Calendar> {
         unitsCredentials['password']!);
     untisSession.cacheDisposeTime = 15;
     untisSession.cacheLengthMaximum = 40; // Twice the default (?)
-    allSubjects = await untisSession.getSubjects(); // TODO: Move to own func
     var userId = untisSession.userId;
     return await untisSession.getTimetable(userId!,
         startDate: DateTime(2022, 8, 22),
         endDate: DateTime(2023, 5, 30),
-        useCache: true);
-  }
-
-  String _getSubject(int id) {
-    //Name of first Subject with matching ID
-    return allSubjects.where((element) => element.id.id == id).first.name;
+        useCache: false);
   }
 
   List<Period> _getEventsForDay(DateTime day) {
     List<Period> periods = [];
 
+    // Filter for relevant Subjects
     for (Period period in timetable) {
       if (isSameDay(period.startTime, day) &&
-          mySubjects.contains(_getSubject(period.subjectIds[0].id))) {
+          mySubjects.contains(period.name)) {
         periods.add(period);
       }
     }
@@ -105,7 +99,7 @@ class _CalendarState extends State<Calendar> {
                 focusedDay = focusedDay;
               });
             }
-            _selectedPeriods.value = _getEventsForDay(_selectedDay!);
+            _selectedPeriods.value = _getEventsForDay(_selectedDay);
           },
           onFormatChanged: (format) {
             if (calendarFormat != format) {
@@ -138,7 +132,7 @@ class _CalendarState extends State<Calendar> {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: ListTile(
-                      title: Text(_getSubject(value[index].subjectIds[0].id)),
+                      title: Text(value[index].name),
                       subtitle: Text(value[index].getStartEndTime()),
                     ),
                   );
