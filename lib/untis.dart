@@ -2,6 +2,7 @@ import 'package:huntis/untis_api.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'auth/secrets.dart';
+import 'auth/my_subjects.dart';
 
 class Untis {
   late Session untisSession;

@@ -4,6 +4,8 @@ import 'package:huntis/untis_api.dart';
 import 'package:huntis/auth/secrets.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'auth/my_subjects.dart';
+
 class Calendar extends StatefulWidget {
   const Calendar({Key? key, required this.untis}) : super(key: key);
   final Untis untis;
@@ -15,8 +17,8 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
-  DateTime focusedDay = DateTime.now();
-  DateTime? selectedDay;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
   late Session untisSession;
   late List<Subject> allSubjects;
 
@@ -33,7 +35,7 @@ class _CalendarState extends State<Calendar> {
         });
       },
     );
-    _selectedPeriods = ValueNotifier(_getEventsForDay(focusedDay));
+    _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
   }
 
   Future<List<Period>> _initTimeTable() async {
@@ -61,10 +63,16 @@ class _CalendarState extends State<Calendar> {
     List<Period> periods = [];
 
     for (Period period in timetable) {
-      if (isSameDay(period.startTime, day)) {
+      if (isSameDay(period.startTime, day) &&
+          mySubjects.contains(_getSubject(period.subjectIds[0].id))) {
         periods.add(period);
       }
     }
+
+    // Sort by time
+    periods.sort((a, b) {
+      return a.startTime.compareTo(b.startTime);
+    });
 
     return periods;
   }
@@ -74,7 +82,7 @@ class _CalendarState extends State<Calendar> {
     return Column(
       children: [
         TableCalendar<Period>(
-          focusedDay: focusedDay,
+          focusedDay: _focusedDay,
           firstDay: DateTime(2022, 8, 10),
           lastDay: DateTime(2023, 5, 30),
           startingDayOfWeek: StartingDayOfWeek.monday,
@@ -82,22 +90,22 @@ class _CalendarState extends State<Calendar> {
           calendarFormat: calendarFormat,
           weekendDays: const [DateTime.saturday, DateTime.sunday],
           availableCalendarFormats: const {
-            CalendarFormat.week: 'Week',
-            CalendarFormat.twoWeeks: 'Two Weeks',
-            CalendarFormat.month: 'Month',
+            CalendarFormat.week: 'Woche',
+            CalendarFormat.twoWeeks: 'Zwei Wochen',
+            CalendarFormat.month: 'Monat',
           },
           selectedDayPredicate: (day) {
-            return isSameDay(selectedDay, day);
+            return isSameDay(_selectedDay, day);
           },
           onDaySelected: (selectedDay, focusedDay) {
-            if (!isSameDay(selectedDay, selectedDay)) {
+            if (!isSameDay(_selectedDay, selectedDay)) {
               // Call `setState()` when updating the selected day
               setState(() {
-                selectedDay = selectedDay;
+                _selectedDay = selectedDay;
                 focusedDay = focusedDay;
               });
             }
-            _selectedPeriods.value = _getEventsForDay(selectedDay);
+            _selectedPeriods.value = _getEventsForDay(_selectedDay!);
           },
           onFormatChanged: (format) {
             if (calendarFormat != format) {
@@ -120,7 +128,20 @@ class _CalendarState extends State<Calendar> {
                 itemCount: value.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return Text(_getSubject(value[index].subjectIds[0].id));
+                  return Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 4.0,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: ListTile(
+                      title: Text(_getSubject(value[index].subjectIds[0].id)),
+                      subtitle: Text(value[index].getStartEndTime()),
+                    ),
+                  );
                 },
               );
             },

@@ -449,12 +449,19 @@ class Period {
       this.lessonText,
       this.statflags);
 
+  String getStartEndTime() {
+    return '${startTime.hour}:${startTime.minute} '
+        '- ${endTime.hour}:${endTime.minute}';
+  }
+
   @override
   String toString() =>
-      "Period<id:$id, startTime:$startTime, endTime:$endTime, " +
-      "isCancelled:$isCancelled, klassenIds:$klassenIds, teacherIds:$teacherIds, " +
-      "subjectIds:$subjectIds, roomIds:$roomIds, activityType:$activityType, " +
-      "code:$activityType, type:$type, lessonText:$lessonText, statflags:$statflags>";
+      "Period<id:$id, startTime:$startTime, endTime:$endTime, "
+          "isCancelled:$isCancelled, klassenIds:$klassenIds, "
+          "teacherIds:$teacherIds, subjectIds:$subjectIds, "
+          "roomIds:$roomIds, activityType:$activityType, "
+          "code:$activityType, type:$type, lessonText:$lessonText, "
+          "statflags:$statflags>";
 }
 
 class Subject {
