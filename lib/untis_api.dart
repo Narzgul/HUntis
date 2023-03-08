@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:string_similarity/string_similarity.dart';
 
+/// https://github.com/IsAvaible/dart-webuntis
 /// Asynchronous Dart wrapper for the WebUntis API.
 /// Initialize a new object by calling the [.init] method.
 ///
@@ -18,7 +19,7 @@ import 'package:string_similarity/string_similarity.dart';
 /// ```yaml
 /// http: ^0.13.4
 /// string_similarity: ^2.0.0
-//  ```
+///  ```
 
 class Session {
   String? _sessionId;
@@ -38,7 +39,7 @@ class Session {
     final ioc = HttpClient();
     ioc.badCertificateCallback =
         (X509Certificate cert, String host, int port) => true;
-    _http = new IOClient(ioc);
+    _http = IOClient(ioc);
   }
 
   static Future<Session> init(
@@ -75,9 +76,11 @@ class Session {
       }
       response = _cache[requestBodyAsString]!.value;
     } else {
-      response = await _http.post(url,
-          body: requestBodyAsString,
-          headers: {"Cookie": "JSESSIONID=$_sessionId"});
+      response = await _http.post(
+        url,
+        body: requestBodyAsString,
+        headers: {"Cookie": "JSESSIONID=$_sessionId"},
+      );
     }
 
     _cache[requestBodyAsString] = _CacheEntry(DateTime.now(), response);
@@ -88,11 +91,11 @@ class Session {
     LinkedHashMap<String, dynamic> responseBody = jsonDecode(response.body);
 
     if (response.statusCode != 200 || responseBody.containsKey("error")) {
-      throw new HttpException(
-          "An exception occurred while communicating with the WebUntis API: ${responseBody["error"]}" +
-              ((responseBody["error"]["code"] == -8520)
-                  ? "\nYou need to authenticate with .login() first."
-                  : ""));
+      throw HttpException(
+        "An exception occurred while communicating with the WebUntis API: "
+        "${responseBody["error"]}"
+        "${(responseBody["error"]["code"] == -8520) ? "\nYou need to authenticate with .login() first." : ""}",
+      );
     } else {
       var result = responseBody["result"];
       return result;
@@ -104,7 +107,7 @@ class Session {
       "id": "req-${_requestId += 1}",
       "method": method,
       "params": parameters,
-      "jsonrpc": "2.0"
+      "jsonrpc": "2.0",
     };
     return postBody;
   }
@@ -114,12 +117,16 @@ class Session {
         {"user": username, "password": _password, "client": userAgent}));
     _sessionId = result["sessionId"] as String;
     if (result.containsKey("personId")) {
-      userId =
-          IdProvider._(result["personType"] as int, result["personId"] as int);
+      userId = IdProvider._(
+        result["personType"] as int,
+        result["personId"] as int,
+      );
     }
     if (result.containsKey("klasseId")) {
       userKlasseId = IdProvider._withType(
-          _IdProviderTypes.KLASSE, result["klasseId"] as int);
+        _IdProviderTypes.KLASSE,
+        result["klasseId"] as int,
+      );
     }
   }
 
@@ -136,12 +143,15 @@ class Session {
         dateTime.toIso8601String().substring(0, 10).replaceAll("-", "");
 
     var rawTimetable = await _request(
-        _postify("getTimetable", {
-          "id": id,
-          "type": type,
-          "startDate": conv.call(startDate),
-          "endDate": conv.call(endDate)
-        }),
+        _postify(
+          "getTimetable",
+          {
+            "id": id,
+            "type": type,
+            "startDate": conv.call(startDate),
+            "endDate": conv.call(endDate),
+          },
+        ),
         useCache: useCache);
 
     List<Period> timetable = _parseTimetable(rawTimetable);
@@ -174,7 +184,7 @@ class Session {
         "code",
         "lstype",
         "lstext",
-        "statflags"
+        "statflags",
       ],
           value: (key) => rawTimetable[index].containsKey(key)
               ? rawTimetable[index][key]
@@ -222,9 +232,10 @@ class Session {
     return List.generate(rawSubjects.length, (index) {
       var subject = rawSubjects[index];
       return Subject._(
-          IdProvider._withType(_IdProviderTypes.SUBJECT, subject["id"]),
-          subject["name"],
-          subject["longName"]);
+        IdProvider._withType(_IdProviderTypes.SUBJECT, subject["id"]),
+        subject["name"],
+        subject["longName"],
+      );
     });
   }
 
@@ -235,15 +246,20 @@ class Session {
   }
 
   Timegrid _parseTimegrid(List<dynamic> rawTimegrid) {
-    return Timegrid._fromList(List.generate(7, (day) {
-      if (rawTimegrid.map((e) => e["day"]).contains(day)) {
-        var dayDict =
-            rawTimegrid.firstWhere((element) => (element["day"] == day));
-        List<dynamic> dayData = dayDict["timeUnits"];
+    return Timegrid._fromList(
+      List.generate(
+        7,
+        (day) {
+          if (rawTimegrid.map((e) => e["day"]).contains(day)) {
+            var dayDict =
+                rawTimegrid.firstWhere((element) => (element["day"] == day));
+            List<dynamic> dayData = dayDict["timeUnits"];
 
-        List.generate(
-            dayData.length,
-            (timePeriod) => List.generate(2, (periodBorder) {
+            List.generate(
+              dayData.length,
+              (timePeriod) => List.generate(
+                2,
+                (periodBorder) {
                   String border =
                       List.from(["startTime", "endTime"])[periodBorder];
                   String time =
@@ -251,11 +267,16 @@ class Session {
                   String hour = time.substring(0, 2),
                       minute = time.substring(2, 4);
                   return DayTime(int.parse(hour), int.parse(minute));
-                }));
-      } else {
-        return null;
-      }
-    }));
+                },
+              ),
+            );
+          } else {
+            return null;
+          }
+          return null;
+        },
+      ),
+    );
   }
 
   Future<Schoolyear> getCurrentSchoolyear({bool useCache = true}) async {
@@ -347,12 +368,17 @@ class Session {
   Future<IdProvider?> searchPerson(
       String forename, String surname, bool isTeacher,
       {String birthdata = "0"}) async {
-    int response = await _request(_postify("getPersonId", {
-      "type": isTeacher ? 2 : 5,
-      "sn": surname,
-      "fn": forename,
-      "dob": birthdata
-    }));
+    int response = await _request(
+      _postify(
+        "getPersonId",
+        {
+          "type": isTeacher ? 2 : 5,
+          "sn": surname,
+          "fn": forename,
+          "dob": birthdata
+        },
+      ),
+    );
     return response == 0 ? null : IdProvider._(isTeacher ? 2 : 5, response);
   }
 
@@ -449,20 +475,21 @@ class Period {
   String name;
 
   Period._(
-      this.id,
-      this.name,
-      this.startTime,
-      this.endTime,
-      this.klassenIds,
-      this.teacherIds,
-      this.subjectIds,
-      this.roomIds,
-      this.activityType,
-      this.isCancelled,
-      this.code,
-      this.type,
-      this.lessonText,
-      this.statflags);
+    this.id,
+    this.name,
+    this.startTime,
+    this.endTime,
+    this.klassenIds,
+    this.teacherIds,
+    this.subjectIds,
+    this.roomIds,
+    this.activityType,
+    this.isCancelled,
+    this.code,
+    this.type,
+    this.lessonText,
+    this.statflags,
+  );
 
   void setName(String name) {
     this.name = name;
@@ -513,8 +540,15 @@ class Timegrid {
       saturday,
       sunday;
 
-  Timegrid._(this.monday, this.tuesday, this.thursday, this.wednesday,
-      this.friday, this.saturday, this.sunday);
+  Timegrid._(
+    this.monday,
+    this.tuesday,
+    this.thursday,
+    this.wednesday,
+    this.friday,
+    this.saturday,
+    this.sunday,
+  );
   factory Timegrid._fromList(List<List<List<DayTime>>?> list) {
     return Timegrid._(
         list[1], list[2], list[3], list[4], list[5], list[6], list[0]);
@@ -522,7 +556,8 @@ class Timegrid {
 
   asList() {
     return List.from(
-        [monday, tuesday, wednesday, thursday, friday, saturday, sunday]);
+      [monday, tuesday, wednesday, thursday, friday, saturday, sunday],
+    );
   }
 }
 

@@ -39,17 +39,20 @@ class _CalendarState extends State<Calendar> {
 
   Future<List<Period>> _initTimeTable() async {
     untisSession = await Session.init(
-        unitsCredentials['server']!,
-        unitsCredentials['school']!,
-        unitsCredentials['username']!,
-        unitsCredentials['password']!);
+      unitsCredentials['server']!,
+      unitsCredentials['school']!,
+      unitsCredentials['username']!,
+      unitsCredentials['password']!,
+    );
     untisSession.cacheDisposeTime = 15;
     untisSession.cacheLengthMaximum = 40; // Twice the default (?)
     var userId = untisSession.userId;
-    return await untisSession.getTimetable(userId!,
-        startDate: DateTime(2022, 8, 22),
-        endDate: DateTime(2023, 5, 30),
-        useCache: false);
+    return await untisSession.getTimetable(
+      userId!,
+      startDate: DateTime(2022, 8, 22),
+      endDate: DateTime(2023, 5, 30),
+      useCache: false,
+    );
   }
 
   List<Period> _getEventsForDay(DateTime day) {
