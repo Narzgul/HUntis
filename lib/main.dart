@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:huntis/components/app_scaffold.dart';
 import 'calendar.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   runApp(const MyApp());
 }
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
+      navigatorKey: navigatorKey,
       home: const AppScaffold(body: Calendar(), title: 'Calendar'),
     );
   }

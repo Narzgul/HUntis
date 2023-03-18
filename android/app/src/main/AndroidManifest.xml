@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.narzgul.huntis">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
    <application
         android:label="huntis"
         android:name="${applicationName}"

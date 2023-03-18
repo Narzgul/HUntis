@@ -15,7 +15,7 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
-  final DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   late Session untisSession;
 
@@ -25,13 +25,33 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
 
-    _initTimeTable().then(
-      (value) {
-        setState(() {
-          timetable = value;
-        });
-      },
-    );
+    try {
+      _initTimeTable().then(
+        (value) {
+          setState(() {
+            timetable = value;
+          });
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text("An error has occurred: $e"),
+            actions: [
+              TextButton(
+                child: const Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
     _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
   }
 
@@ -98,7 +118,6 @@ class _CalendarState extends State<Calendar> {
               // Call `setState()` when updating the selected day
               setState(() {
                 _selectedDay = selectedDay;
-                focusedDay = focusedDay;
               });
             }
             _selectedPeriods.value = _getEventsForDay(_selectedDay);
@@ -113,7 +132,7 @@ class _CalendarState extends State<Calendar> {
           },
           onPageChanged: (focusedDay) {
             // No need to call `setState()` here
-            focusedDay = focusedDay;
+            _focusedDay = focusedDay;
           },
         ),
         Expanded(

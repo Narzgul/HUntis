@@ -2,8 +2,10 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
+import 'package:huntis/main.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 /// https://github.com/IsAvaible/dart-webuntis
@@ -41,7 +43,7 @@ class Session {
         (X509Certificate cert, String host, int port) => true;
     _http = IOClient(ioc);
   }
-
+  
   static Future<Session> init(
       String server, String school, String username, String password,
       {String userAgent = "Dart Untis API"}) async {
@@ -91,6 +93,23 @@ class Session {
     LinkedHashMap<String, dynamic> responseBody = jsonDecode(response.body);
 
     if (response.statusCode != 200 || responseBody.containsKey("error")) {
+      showDialog(
+        context: navigatorKey.currentContext!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text("An error has occurred: ${responseBody["error"]}"),
+            actions: [
+              TextButton(
+                child: const Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
       throw HttpException(
         "An exception occurred while communicating with the WebUntis API: "
         "${responseBody["error"]}"

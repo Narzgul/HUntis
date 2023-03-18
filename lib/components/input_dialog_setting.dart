@@ -4,24 +4,24 @@ class InputDialogSetting extends StatelessWidget {
   final Function(String) onSubmit;
   final Function? onCancel;
   final String title;
-  final String subTitle, hintText;
+  final String lastValue, hintText;
   final TextEditingController _textController = TextEditingController();
 
   InputDialogSetting({
     Key? key,
     required this.onSubmit,
     required this.title,
-    this.subTitle = '',
+    this.lastValue = '',
     this.hintText = '',
     this.onCancel,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _textController.text = hintText; // Set default value
+    _textController.text = lastValue; // Set default value
     return ListTile(
       title: Text(title),
-      subtitle: Text(subTitle),
+      subtitle: Text(lastValue),
       trailing: const Icon(Icons.arrow_forward),
       onTap: () {
         showDialog(

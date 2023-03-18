@@ -40,7 +40,7 @@ class _SettingsState extends State<Settings> {
       children: [
         InputDialogSetting(
           title: 'Server URL',
-          subTitle: serverURL,
+          lastValue: serverURL,
           hintText: 'ajax.webuntis.com',
           onSubmit: (String serverURL) {
             this.serverURL = serverURL;
@@ -49,7 +49,7 @@ class _SettingsState extends State<Settings> {
         ),
         InputDialogSetting(
           title: 'School',
-          subTitle: school,
+          lastValue: school,
           hintText: 'lindengym-gummersbach',
           onSubmit: (String school) {
             this.school = school;
@@ -58,8 +58,8 @@ class _SettingsState extends State<Settings> {
         ),
         InputDialogSetting(
           title: 'Username',
-          subTitle: username,
-          hintText: 'ajax.webuntis.com',
+          lastValue: username,
+          hintText: 'LastnameFirstname',
           onSubmit: (String username) {
             this.username = username;
             _saveSettings();
@@ -67,8 +67,8 @@ class _SettingsState extends State<Settings> {
         ),
         InputDialogSetting(
           title: 'Password',
-          subTitle: password.replaceAll(RegExp('.'), '*'), // Censor password
-          hintText: password,
+          lastValue: password.replaceAll(RegExp('.'), '*'), // Censor password
+          hintText: '',
           onSubmit: (String password) {
             this.password = password;
             _saveSettings();
