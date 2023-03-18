@@ -35,7 +35,7 @@ class NavDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AppScaffold(
+                  builder: (context) => const AppScaffold(
                     body: Settings(),
                     title: 'Settings',
                   ),

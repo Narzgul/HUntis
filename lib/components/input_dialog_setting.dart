@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class InputDialogSetting extends StatelessWidget {
-  Function(String) onSubmit;
-  Function? onCancel;
+  final Function(String) onSubmit;
+  final Function? onCancel;
   final String title;
   final String subTitle, hintText;
   final TextEditingController _textController = TextEditingController();
@@ -18,6 +18,7 @@ class InputDialogSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _textController.text = hintText; // Set default value
     return ListTile(
       title: Text(title),
       subtitle: Text(subTitle),

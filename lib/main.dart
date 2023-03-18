@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:huntis/components/nav_drawer.dart';
-import 'package:huntis/untis.dart';
+import 'package:huntis/components/app_scaffold.dart';
 import 'calendar.dart';
 
 Future<void> main() async {
@@ -12,42 +13,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      exit(1);
+    };
+
     return MaterialApp(
       title: 'HUntis',
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: const MyHomePage(title: 'HUnits'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  Untis untis = Untis();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      drawer: const NavDrawer(),
-      body: const Center(
-        child: Calendar(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Add',
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
+      home: const AppScaffold(body: Calendar(), title: 'Calendar'),
     );
   }
 }
