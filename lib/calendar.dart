@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:huntis/untis.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:huntis/auth/secrets.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -7,8 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'auth/my_subjects.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key, required this.untis}) : super(key: key);
-  final Untis untis;
+  const Calendar({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CalendarState();
@@ -17,7 +15,7 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
-  DateTime _focusedDay = DateTime.now();
+  final DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   late Session untisSession;
 

@@ -31,6 +31,7 @@ dependencies:
   http: ^0.13.4
   string_similarity: ^2.0.0
   time_planner: ^0.1.1
+  shared_preferences:
   flutter:
     sdk: flutter
 

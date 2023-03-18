@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:huntis/components/nav_drawer.dart';
 import 'package:huntis/untis.dart';
 import 'calendar.dart';
 
@@ -38,10 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Calendar(
-          untis: untis,
-        ),
+      drawer: const NavDrawer(),
+      body: const Center(
+        child: Calendar(),
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Add',
