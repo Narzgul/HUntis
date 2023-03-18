@@ -16,7 +16,9 @@ class _SettingsState extends State<Settings> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       serverURL = prefs.getString('serverURL') ?? '';
+      school = prefs.getString('school') ?? '';
       username = prefs.getString('username') ?? '';
+      password = prefs.getString('password') ?? '';
     });
   }
 
@@ -24,7 +26,9 @@ class _SettingsState extends State<Settings> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('serverURL', serverURL);
+      prefs.setString('school', school);
       prefs.setString('username', username);
+      prefs.setString('password', password);
     });
   }
 
