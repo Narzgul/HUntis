@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:huntis/main.dart';
+import 'package:intl/intl.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 /// https://github.com/IsAvaible/dart-webuntis
@@ -43,7 +44,7 @@ class Session {
         (X509Certificate cert, String host, int port) => true;
     _http = IOClient(ioc);
   }
-  
+
   static Future<Session> init(
       String server, String school, String username, String password,
       {String userAgent = "Dart Untis API"}) async {
@@ -149,8 +150,24 @@ class Session {
     }
   }
 
-  Future<List<Period>> getTimetable(IdProvider idProvider,
-      {DateTime? startDate, DateTime? endDate, bool useCache = false}) async {
+  bool _isSamePeriod(Period period1, Period period2) {
+    bool isSame = period1.endTime == period2.startTime &&
+        period1.name == period2.name;
+    if(isSame && period1.teacherIds.isNotEmpty && period2.teacherIds.isNotEmpty) {
+      isSame = period1.teacherIds[0].id == period2.teacherIds[0].id;
+    } else {
+      isSame = false;
+    }
+    return isSame;
+  }
+  
+  Future<List<Period>> getTimetable(
+    IdProvider idProvider, {
+    DateTime? startDate,
+    DateTime? endDate,
+    bool useCache = false,
+    bool combineSamePeriods = true,
+  }) async {
     var id = idProvider.id, type = idProvider.type.index + 1;
 
     startDate = startDate ?? DateTime.now();
@@ -182,6 +199,29 @@ class Session {
         int id = period.subjectIds[0].id;
         period.name =
             allSubjects.where((element) => element.id.id == id).first.name;
+      }
+    }
+
+    // Sort by time
+    timetable.sort((a, b) {
+      int sorter = a.startTime.compareTo(b.startTime);
+      if (sorter == 0) {
+        sorter = a.name.compareTo(b.name);
+      }
+      return sorter;
+    });
+    if (combineSamePeriods) {
+      for (int i = 0; i < timetable.length; i++) {
+        for (int j = 0; j < timetable.length; j++) {
+          if (_isSamePeriod(timetable[i], timetable[j])) {
+            if (timetable[i].startTime.compareTo(timetable[j].startTime) < 0) {
+              timetable[i].endTime = timetable[j].endTime;
+            } else {
+              timetable[i].startTime = timetable[j].startTime;
+            }
+            timetable.remove(timetable[j]);
+          }
+        }
       }
     }
 
@@ -487,7 +527,7 @@ class Session {
 
 class Period {
   final int id;
-  final DateTime startTime, endTime;
+  DateTime startTime, endTime;
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
   final bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
@@ -515,8 +555,8 @@ class Period {
   }
 
   String getStartEndTime() {
-    return '${startTime.hour}:${startTime.minute} '
-        '- ${endTime.hour}:${endTime.minute}';
+    return '${DateFormat('HH:mm').format(startTime)} '
+        '- ${DateFormat('HH:mm').format(endTime)}';
   }
 
   @override

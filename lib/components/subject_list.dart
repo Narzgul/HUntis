@@ -22,7 +22,7 @@ class _SubjectListState extends State<SubjectList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? list = prefs.getStringList('mySubjects');
     if (list != null) {
-        _mySubjects = list;
+      _mySubjects = list;
     }
   }
 

@@ -93,11 +93,6 @@ class _CalendarState extends State<Calendar> {
       }
     }
 
-    // Sort by time
-    periods.sort((a, b) {
-      return a.startTime.compareTo(b.startTime);
-    });
-
     return periods;
   }
 
