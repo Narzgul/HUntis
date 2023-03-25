@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:huntis/components/input_dialog_setting.dart';
+import 'package:huntis/components/subject_selector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
@@ -74,6 +75,7 @@ class _SettingsState extends State<Settings> {
             _saveSettings();
           },
         ),
+        const SubjectSelector()
       ],
     );
   }

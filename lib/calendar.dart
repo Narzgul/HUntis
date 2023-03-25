@@ -3,8 +3,6 @@ import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'auth/my_subjects.dart';
-
 class Calendar extends StatefulWidget {
   const Calendar({Key? key}) : super(key: key);
 
@@ -18,6 +16,7 @@ class _CalendarState extends State<Calendar> {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   late Session untisSession;
+  List<String> _mySubjects = [];
 
   List<Period> timetable = [];
 
@@ -74,13 +73,22 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  Future<void> _loadSubjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? list = prefs.getStringList('mySubjects');
+    if (list != null) {
+      _mySubjects = list;
+    }
+  }
+
   List<Period> _getEventsForDay(DateTime day) {
     List<Period> periods = [];
 
     // Filter for relevant Subjects
+    _loadSubjects();
     for (Period period in timetable) {
       if (isSameDay(period.startTime, day) &&
-          mySubjects.contains(period.name)) {
+          _mySubjects.contains(period.name)) {
         periods.add(period);
       }
     }
@@ -102,13 +110,12 @@ class _CalendarState extends State<Calendar> {
           firstDay: DateTime(2022, 8, 10),
           lastDay: DateTime(2023, 5, 30),
           startingDayOfWeek: StartingDayOfWeek.monday,
-          // eventLoader: untis,
           calendarFormat: calendarFormat,
           weekendDays: const [DateTime.saturday, DateTime.sunday],
           availableCalendarFormats: const {
-            CalendarFormat.week: 'Woche',
-            CalendarFormat.twoWeeks: 'Zwei Wochen',
-            CalendarFormat.month: 'Monat',
+            CalendarFormat.week: 'Week',
+            CalendarFormat.twoWeeks: 'Two Weeks',
+            CalendarFormat.month: 'Month',
           },
           selectedDayPredicate: (day) {
             return isSameDay(_selectedDay, day);
