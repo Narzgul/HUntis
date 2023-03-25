@@ -66,6 +66,7 @@ class _SubjectListState extends State<SubjectList> {
       ) {
         if (snapshot.hasData) {
           return ListView.builder(
+            physics: const ScrollPhysics(),
             shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext context, int index) {

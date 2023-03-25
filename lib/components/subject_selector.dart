@@ -18,11 +18,19 @@ class _SubjectSelectorState extends State<SubjectSelector> {
         showDialog(
           context: context,
           builder: (context) {
-            return const SimpleDialog(
-              title: Text('Enter your Subjects'),
-              children: [
-                SubjectList()
-              ],
+            return Dialog(
+              child: Column(
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Select your Subjects',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  Flexible(child: SubjectList()),
+                ],
+              ),
             );
           },
         );
