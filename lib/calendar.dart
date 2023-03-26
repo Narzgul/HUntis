@@ -157,6 +157,7 @@ class _CalendarState extends State<Calendar> {
                     child: ListTile(
                       title: Text(value[index].name),
                       subtitle: Text(value[index].getStartEndTime()),
+                      trailing: Text(value[index].teachername),
                     ),
                   );
                 },

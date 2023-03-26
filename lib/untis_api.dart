@@ -151,16 +151,18 @@ class Session {
   }
 
   bool _isSamePeriod(Period period1, Period period2) {
-    bool isSame = period1.endTime == period2.startTime &&
-        period1.name == period2.name;
-    if(isSame && period1.teacherIds.isNotEmpty && period2.teacherIds.isNotEmpty) {
+    bool isSame =
+        period1.endTime == period2.startTime && period1.name == period2.name;
+    if (isSame &&
+        period1.teacherIds.isNotEmpty &&
+        period2.teacherIds.isNotEmpty) {
       isSame = period1.teacherIds[0].id == period2.teacherIds[0].id;
     } else {
       isSame = false;
     }
     return isSame;
   }
-  
+
   Future<List<Period>> getTimetable(
     IdProvider idProvider, {
     DateTime? startDate,
@@ -199,6 +201,18 @@ class Session {
         int id = period.subjectIds[0].id;
         period.name =
             allSubjects.where((element) => element.id.id == id).first.name;
+      }
+    }
+    // Search for all corresponding teacher names
+    List<Teacher> allTeachers = await getTeachers();
+    for (Period period in timetable) {
+      if (period.teacherIds.isNotEmpty) {
+        int id = period.teacherIds[0].id;
+        Iterable<Teacher> possibleTeachers =
+            allTeachers.where((element) => element.id.id == id);
+        if (possibleTeachers.isNotEmpty) {
+          period.teachername = possibleTeachers.first.surName!;
+        }
       }
     }
 
@@ -251,6 +265,7 @@ class Session {
       return Period._(
         period["id"] as int,
         'NoName',
+        'NoTeacher',
         DateTime.parse(
             "${period["date"]} ${period["startTime"].toString().padLeft(4, "0")}"),
         DateTime.parse(
@@ -375,6 +390,26 @@ class Session {
         student.containsKey("foreName") ? student["foreName"] ?? null : null,
         student.containsKey("longName") ? student["longName"] ?? null : null,
         student.containsKey("gender") ? student["gender"] ?? null : null,
+      );
+    });
+  }
+
+  Future<List<Teacher>> getTeachers({bool useCache = false}) async {
+    List<dynamic> rawTeachers = await customRequest("getTeachers", {});
+    return _parseTeachers(rawTeachers);
+  }
+
+  List<Teacher> _parseTeachers(List<dynamic> rawTeachers) {
+    return List.generate(rawTeachers.length, (index) {
+      var teacher = rawTeachers[index];
+      return Teacher._(
+        IdProvider._withType(_IdProviderTypes.TEACHER, teacher["id"]),
+        teacher.containsKey("key") ? teacher["key"] ?? null : null,
+        teacher.containsKey("name") ? teacher["name"] ?? null : null,
+        teacher.containsKey("foreName") ? teacher["foreName"] ?? null : null,
+        teacher.containsKey("longName") ? teacher["longName"] ?? null : null,
+        teacher.containsKey("title") ? teacher["title"] ?? null : null,
+        teacher.containsKey("active") ? teacher["active"] ?? null : null,
       );
     });
   }
@@ -531,11 +566,12 @@ class Period {
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
   final bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
-  String name;
+  String name, teachername;
 
   Period._(
     this.id,
     this.name,
+    this.teachername,
     this.startTime,
     this.endTime,
     this.klassenIds,
@@ -630,6 +666,19 @@ class Student {
   @override
   String toString() =>
       "Student<${id.toString()}:untisName:$untisName, foreName:$foreName, surName:$surName, gender:$gender, key:$key>";
+}
+
+class Teacher {
+  IdProvider id;
+  String? key, shorthand, foreName, surName, title;
+  bool? active;
+
+  Teacher._(this.id, this.key, this.shorthand, this.foreName, this.surName,
+      this.title, this.active);
+
+  @override
+  String toString() =>
+      "Student<${id.toString()}:shorthand:$shorthand, foreName:$foreName, surName:$surName, title:$title, active:$active, key:$key>";
 }
 
 class Room {
