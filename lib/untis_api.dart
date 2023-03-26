@@ -182,16 +182,17 @@ class Session {
         dateTime.toIso8601String().substring(0, 10).replaceAll("-", "");
 
     var rawTimetable = await _request(
-        _postify(
-          "getTimetable",
-          {
-            "id": id,
-            "type": type,
-            "startDate": conv.call(startDate),
-            "endDate": conv.call(endDate),
-          },
-        ),
-        useCache: useCache);
+      _postify(
+        "getTimetable",
+        {
+          "id": id,
+          "type": type,
+          "startDate": conv.call(startDate),
+          "endDate": conv.call(endDate),
+        },
+      ),
+      useCache: useCache,
+    );
 
     List<Period> timetable = _parseTimetable(rawTimetable);
 
@@ -212,10 +213,22 @@ class Session {
         Iterable<Teacher> possibleTeachers =
             allTeachers.where((element) => element.id.id == id);
         if (possibleTeachers.isNotEmpty) {
-          period.teachername = possibleTeachers.first.surName!;
+          period.teacherName = possibleTeachers.first.surName!;
           if (possibleTeachers.first.id.id == 80) {
-            period.isCancelled = true;
+            period.isCancelled = true; // Cancelled Period (EVA) for my school
           }
+        }
+      }
+    }
+    // Search for corresponding room number
+    List<Room> allRooms = await getRooms();
+    for (Period period in timetable) {
+      if (period.roomIds.isNotEmpty) {
+        int id = period.roomIds[0].id;
+        Iterable<Room> possibleRooms =
+            allRooms.where((element) => element.id.id == id);
+        if (possibleRooms.isNotEmpty) {
+          period.roomName = possibleRooms.first.name!;
         }
       }
     }
@@ -270,6 +283,7 @@ class Session {
         period["id"] as int,
         'NoName',
         'NoTeacher',
+        'NoRoom',
         DateTime.parse(
             "${period["date"]} ${period["startTime"].toString().padLeft(4, "0")}"),
         DateTime.parse(
@@ -570,12 +584,13 @@ class Period {
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
   bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
-  String name, teachername;
+  String name, teacherName, roomName;
 
   Period._(
     this.id,
     this.name,
-    this.teachername,
+    this.teacherName,
+    this.roomName,
     this.startTime,
     this.endTime,
     this.klassenIds,
