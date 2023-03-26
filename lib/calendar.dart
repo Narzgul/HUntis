@@ -145,6 +145,7 @@ class _CalendarState extends State<Calendar> {
                 itemCount: value.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+                  print(value[index].teacherIds);
                   return Container(
                     margin: const EdgeInsets.symmetric(
                       horizontal: 12.0,
@@ -153,6 +154,7 @@ class _CalendarState extends State<Calendar> {
                     decoration: BoxDecoration(
                       border: Border.all(),
                       borderRadius: BorderRadius.circular(12.0),
+                      color: value[index].isCancelled ? Colors.blue : Colors.white,
                     ),
                     child: ListTile(
                       title: Text(value[index].name),

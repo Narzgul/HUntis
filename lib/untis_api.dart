@@ -156,7 +156,8 @@ class Session {
     if (isSame &&
         period1.teacherIds.isNotEmpty &&
         period2.teacherIds.isNotEmpty) {
-      isSame = period1.teacherIds[0].id == period2.teacherIds[0].id;
+      isSame = period1.teacherIds[0].id == period2.teacherIds[0].id &&
+          period1.isCancelled == period2.isCancelled;
     } else {
       isSame = false;
     }
@@ -212,6 +213,9 @@ class Session {
             allTeachers.where((element) => element.id.id == id);
         if (possibleTeachers.isNotEmpty) {
           period.teachername = possibleTeachers.first.surName!;
+          if (possibleTeachers.first.id.id == 80) {
+            period.isCancelled = true;
+          }
         }
       }
     }
@@ -564,7 +568,7 @@ class Period {
   final int id;
   DateTime startTime, endTime;
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
-  final bool isCancelled;
+  bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
   String name, teachername;
 
