@@ -144,7 +144,7 @@ class Session {
     }
     if (result.containsKey("klasseId")) {
       userKlasseId = IdProvider._withType(
-        _IdProviderTypes.KLASSE,
+        IdProviderTypes.klasse,
         result["klasseId"] as int,
       );
     }
@@ -178,7 +178,7 @@ class Session {
     if (startDate.compareTo(endDate) == 1) {
       throw Exception("startDate must be equal to or before the endDate.");
     }
-    var conv = (DateTime dateTime) =>
+    conv(DateTime dateTime) =>
         dateTime.toIso8601String().substring(0, 10).replaceAll("-", "");
 
     var rawTimetable = await _request(
@@ -291,19 +291,19 @@ class Session {
         List.generate(
             period["kl"].length,
             (index) => IdProvider._withType(
-                _IdProviderTypes.KLASSE, period["kl"][index]["id"])),
+                IdProviderTypes.klasse, period["kl"][index]["id"])),
         List.generate(
             period["te"].length,
             (index) => IdProvider._withType(
-                _IdProviderTypes.KLASSE, period["te"][index]["id"])),
+                IdProviderTypes.klasse, period["te"][index]["id"])),
         List.generate(
             period["su"].length,
             (index) => IdProvider._withType(
-                _IdProviderTypes.KLASSE, period["su"][index]["id"])),
+                IdProviderTypes.klasse, period["su"][index]["id"])),
         List.generate(
             period["ro"].length,
             (index) => IdProvider._withType(
-                _IdProviderTypes.KLASSE, period["ro"][index]["id"])),
+                IdProviderTypes.klasse, period["ro"][index]["id"])),
         period["activityType"],
         (period["code"] ?? "") == "cancelled",
         period["code"],
@@ -324,7 +324,7 @@ class Session {
     return List.generate(rawSubjects.length, (index) {
       var subject = rawSubjects[index];
       return Subject._(
-        IdProvider._withType(_IdProviderTypes.SUBJECT, subject["id"]),
+        IdProvider._withType(IdProviderTypes.subject, subject["id"]),
         subject["name"],
         subject["longName"],
       );
@@ -402,12 +402,12 @@ class Session {
     return List.generate(rawStudents.length, (index) {
       var student = rawStudents[index];
       return Student._(
-        IdProvider._withType(_IdProviderTypes.STUDENT, student["id"]),
-        student.containsKey("key") ? student["key"] ?? null : null,
-        student.containsKey("name") ? student["name"] ?? null : null,
-        student.containsKey("foreName") ? student["foreName"] ?? null : null,
-        student.containsKey("longName") ? student["longName"] ?? null : null,
-        student.containsKey("gender") ? student["gender"] ?? null : null,
+        IdProvider._withType(IdProviderTypes.student, student["id"]),
+        student.containsKey("key") ? student["key"] : null,
+        student.containsKey("name") ? student["name"] : null,
+        student.containsKey("foreName") ? student["foreName"] : null,
+        student.containsKey("longName") ? student["longName"] : null,
+        student.containsKey("gender") ? student["gender"] : null,
       );
     });
   }
@@ -421,13 +421,13 @@ class Session {
     return List.generate(rawTeachers.length, (index) {
       var teacher = rawTeachers[index];
       return Teacher._(
-        IdProvider._withType(_IdProviderTypes.TEACHER, teacher["id"]),
-        teacher.containsKey("key") ? teacher["key"] ?? null : null,
-        teacher.containsKey("name") ? teacher["name"] ?? null : null,
-        teacher.containsKey("foreName") ? teacher["foreName"] ?? null : null,
-        teacher.containsKey("longName") ? teacher["longName"] ?? null : null,
-        teacher.containsKey("title") ? teacher["title"] ?? null : null,
-        teacher.containsKey("active") ? teacher["active"] ?? null : null,
+        IdProvider._withType(IdProviderTypes.teacher, teacher["id"]),
+        teacher.containsKey("key") ? teacher["key"] : null,
+        teacher.containsKey("name") ? teacher["name"] : null,
+        teacher.containsKey("foreName") ? teacher["foreName"] : null,
+        teacher.containsKey("longName") ? teacher["longName"] : null,
+        teacher.containsKey("title") ? teacher["title"] : null,
+        teacher.containsKey("active") ? teacher["active"] : null,
       );
     });
   }
@@ -442,11 +442,11 @@ class Session {
     return List.generate(rawRooms.length, (index) {
       var room = rawRooms[index];
       return Room._(
-        IdProvider._withType(_IdProviderTypes.ROOM, room["id"]),
-        room.containsKey("name") ? room["name"] ?? null : null,
-        room.containsKey("longName") ? room["longName"] ?? null : null,
-        room.containsKey("foreColor") ? room["foreColor"] ?? null : null,
-        room.containsKey("backColor") ? room["backColor"] ?? null : null,
+        IdProvider._withType(IdProviderTypes.room, room["id"]),
+        room.containsKey("name") ? room["name"] : null,
+        room.containsKey("longName") ? room["longName"] : null,
+        room.containsKey("foreColor") ? room["foreColor"] : null,
+        room.containsKey("backColor") ? room["backColor"] : null,
       );
     });
   }
@@ -464,16 +464,16 @@ class Session {
       Map klasse = rawKlassen[index];
       var teachers = klasse.keys.where((e) => e.startsWith("teacher")).toList();
       return Klasse._(
-          IdProvider._withType(_IdProviderTypes.KLASSE, klasse["id"]),
+          IdProvider._withType(IdProviderTypes.klasse, klasse["id"]),
           schoolyearId,
-          klasse.containsKey("name") ? klasse["name"] ?? null : null,
-          klasse.containsKey("longName") ? klasse["longName"] ?? null : null,
-          klasse.containsKey("foreColor") ? klasse["foreColor"] ?? null : null,
-          klasse.containsKey("backColor") ? klasse["backColor"] ?? null : null,
+          klasse.containsKey("name") ? klasse["name"] : null,
+          klasse.containsKey("longName") ? klasse["longName"] : null,
+          klasse.containsKey("foreColor") ? klasse["foreColor"] : null,
+          klasse.containsKey("backColor") ? klasse["backColor"] : null,
           List.generate(
               teachers.length,
               (i) => IdProvider._withType(
-                  _IdProviderTypes.TEACHER, klasse[teachers[i]])));
+                  IdProviderTypes.teacher, klasse[teachers[i]])));
     });
   }
 
@@ -494,7 +494,7 @@ class Session {
     return response == 0 ? null : IdProvider._(isTeacher ? 2 : 5, response);
   }
 
-  Future<_SearchMatches?> searchStudent(
+  Future<SearchMatches?> searchStudent(
       [String? forename,
       String? surname,
       int maxMatchCount = 5,
@@ -512,7 +512,7 @@ class Session {
       return null;
     }
 
-    var bestMatchesFinder = (String name, bool isSurname) {
+    bestMatchesFinder(String name, bool isSurname) {
       var matches = name.bestMatch(students
           .map((student) => isSurname ? student.surName : student.foreName)
           .toList());
@@ -535,15 +535,17 @@ class Session {
                   (r) => r.target == (isSurname ? b.surName : b.foreName))
               .rating!));
       return asStudents.reversed.toList();
-    };
+    }
 
     var bestForenameMatches, bestSurnameMatches;
-    if (forename != null)
+    if (forename != null) {
       bestForenameMatches = bestMatchesFinder.call(forename, false);
-    if (surname != null)
+    }
+    if (surname != null) {
       bestSurnameMatches = bestMatchesFinder.call(surname, true);
+    }
 
-    return _SearchMatches._(bestForenameMatches, bestSurnameMatches);
+    return SearchMatches._(bestForenameMatches, bestSurnameMatches);
   }
 
   Future<List<Period>> getCancellations(IdProvider idProvider,
@@ -635,7 +637,7 @@ class Subject {
 
 class Schoolyear {
   final int id;
-  final name;
+  final String name;
   final DateTime startDate, endDate;
 
   Schoolyear._(this.id, this.name, this.startDate, this.endDate);
@@ -732,42 +734,42 @@ class DayTime {
 
   @override
   String toString() {
-    String _addLeadingZeroIfNeeded(int value) {
+    String addLeadingZeroIfNeeded(int value) {
       if (value < 10) return '0$value';
       return value.toString();
     }
 
-    final String hourLabel = _addLeadingZeroIfNeeded(hour);
-    final String minuteLabel = _addLeadingZeroIfNeeded(minute);
+    final String hourLabel = addLeadingZeroIfNeeded(hour);
+    final String minuteLabel = addLeadingZeroIfNeeded(minute);
 
     return '$DayTime($hourLabel:$minuteLabel)';
   }
 }
 
-class _SearchMatches {
+class SearchMatches {
   List<Student>? forenameMatches, surnameMatches;
-  _SearchMatches._(this.forenameMatches, this.surnameMatches);
+  SearchMatches._(this.forenameMatches, this.surnameMatches);
 
   @override
   String toString() =>
       '_SearchMatches<forenameMatches: ${forenameMatches.toString()}\nsurnameMatches: ${surnameMatches.toString()}>';
 }
 
-enum _IdProviderTypes { KLASSE, TEACHER, SUBJECT, ROOM, STUDENT }
+enum IdProviderTypes { klasse, teacher, subject, room, student }
 
 class IdProvider {
-  final _IdProviderTypes type;
+  final IdProviderTypes type;
   final int id;
 
   IdProvider._internal(this.type, this.id);
 
-  factory IdProvider._withType(_IdProviderTypes type, int id) {
+  factory IdProvider._withType(IdProviderTypes type, int id) {
     return IdProvider._internal(type, id);
   }
 
   factory IdProvider._(int type, int id) {
     assert(0 < type && type < 6);
-    return IdProvider._withType(_IdProviderTypes.values[type - 1], id);
+    return IdProvider._withType(IdProviderTypes.values[type - 1], id);
   }
 
   /// Returns a custom IdProvider. USE WITH CAUTION.
@@ -775,7 +777,7 @@ class IdProvider {
   /// type: 1 = klasse, 2 = teacher, 3 = subject, 4 = room, 5 = student
   factory IdProvider.custom(int type, int id) {
     assert(0 < type && type < 6);
-    return IdProvider._withType(_IdProviderTypes.values[type - 1], id);
+    return IdProvider._withType(IdProviderTypes.values[type - 1], id);
   }
 
   @override

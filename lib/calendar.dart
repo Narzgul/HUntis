@@ -62,14 +62,11 @@ class _CalendarState extends State<Calendar> {
       prefs.getString('username') ?? '',
       prefs.getString('password') ?? '',
     );
-    untisSession.cacheDisposeTime = 15;
-    untisSession.cacheLengthMaximum = 40; // Twice the default (?)
     var userId = untisSession.userId;
     return await untisSession.getTimetable(
       userId!,
       startDate: DateTime(2022, 8, 22),
       endDate: DateTime(2023, 5, 30),
-      useCache: false,
     );
   }
 
@@ -122,6 +119,7 @@ class _CalendarState extends State<Calendar> {
                 _selectedDay = selectedDay;
               });
             }
+            // Update timetable
             _selectedPeriods.value = _getEventsForDay(_selectedDay);
           },
           onFormatChanged: (format) {
@@ -133,23 +131,26 @@ class _CalendarState extends State<Calendar> {
             }
           },
           onPageChanged: (focusedDay) {
-            // No need to call `setState()` here
             _focusedDay = focusedDay;
           },
         ),
         Expanded(
           child: GestureDetector(
+            // Swipe to change day
             onHorizontalDragEnd: (details) {
               if (details.primaryVelocity! > 0) {
+                // Swipe left
                 setState(() {
                   _selectedDay = _selectedDay.subtract(const Duration(days: 1));
                 });
               } else if (details.primaryVelocity! < 0) {
+                // Swipe right
                 setState(() {
                   _selectedDay = _selectedDay.add(const Duration(days: 1));
                 });
               }
-              _selectedPeriods.value = _getEventsForDay(_selectedDay);
+              _selectedPeriods.value =
+                  _getEventsForDay(_selectedDay); // Update timetable
             },
             child: ValueListenableBuilder<List<Period>>(
               valueListenable: _selectedPeriods,
@@ -164,6 +165,7 @@ class _CalendarState extends State<Calendar> {
                         vertical: 4.0,
                       ),
                       decoration: BoxDecoration(
+                        // Borders around the tiles
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(12.0),
                         color: value[index].isCancelled
@@ -174,8 +176,8 @@ class _CalendarState extends State<Calendar> {
                         title: Text(value[index].name),
                         subtitle: Text(value[index].getStartEndTime()),
                         trailing: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.end, // Align to the right
                           children: [
                             Text(value[index].teacherName),
                             const Spacer(),

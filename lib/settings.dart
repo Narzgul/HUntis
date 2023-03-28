@@ -11,7 +11,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  var serverURL = '', school = '', username = '', password = '';
+  String serverURL = '', school = '', username = '', password = '';
 
   _loadSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
