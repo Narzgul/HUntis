@@ -138,41 +138,56 @@ class _CalendarState extends State<Calendar> {
           },
         ),
         Expanded(
-          child: ValueListenableBuilder<List<Period>>(
-            valueListenable: _selectedPeriods,
-            builder: (context, value, _) {
-              return ListView.builder(
-                itemCount: value.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 4.0,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(12.0),
-                      color:
-                          value[index].isCancelled ? Colors.blue : Colors.white,
-                    ),
-                    child: ListTile(
-                      title: Text(value[index].name),
-                      subtitle: Text(value[index].getStartEndTime()),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(value[index].teacherName),
-                          const Spacer(),
-                          Text(value[index].roomName),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
+          child: GestureDetector(
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity! > 0) {
+                setState(() {
+                  _selectedDay = _selectedDay.subtract(const Duration(days: 1));
+                });
+              } else if (details.primaryVelocity! < 0) {
+                setState(() {
+                  _selectedDay = _selectedDay.add(const Duration(days: 1));
+                });
+              }
+              _selectedPeriods.value = _getEventsForDay(_selectedDay);
             },
+            child: ValueListenableBuilder<List<Period>>(
+              valueListenable: _selectedPeriods,
+              builder: (context, value, _) {
+                return ListView.builder(
+                  itemCount: value.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 4.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: value[index].isCancelled
+                            ? Colors.blue
+                            : Colors.white,
+                      ),
+                      child: ListTile(
+                        title: Text(value[index].name),
+                        subtitle: Text(value[index].getStartEndTime()),
+                        trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(value[index].teacherName),
+                            const Spacer(),
+                            Text(value[index].roomName),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
       ],
