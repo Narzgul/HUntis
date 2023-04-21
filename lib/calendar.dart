@@ -57,7 +57,6 @@ class _CalendarState extends State<Calendar> {
   Future<List<Period>> _initTimeTable() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     untisSession = await Session.init(
-      prefs.getString('serverURL') ?? '',
       prefs.getString('school') ?? '',
       prefs.getString('username') ?? '',
       prefs.getString('password') ?? '',

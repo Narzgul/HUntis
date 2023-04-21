@@ -2,12 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:huntis/components/app_scaffold.dart';
+import 'package:huntis/untis_api.dart';
+import 'package:provider/provider.dart';
 import 'calendar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [Session(server:
+  prefs.getString('serverURL') ?? '',, school: school, username: username, password: password)], child: const MyApp())
 }
 
 class MyApp extends StatelessWidget {

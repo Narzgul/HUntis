@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:huntis/main.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 /// https://github.com/IsAvaible/dart-webuntis
@@ -28,7 +29,7 @@ class Session {
   String? _sessionId;
   IdProvider? userId, userKlasseId;
 
-  final String server, school, username, _password, userAgent;
+  final String server, school, username, password, userAgent;
 
   int _requestId = 0;
   late final IOClient _http;
@@ -37,29 +38,38 @@ class Session {
   int cacheLengthMaximum = 20;
   int cacheDisposeTime = 30;
 
-  Session._internal(
-      this.server, this.school, this.username, this._password, this.userAgent) {
+  Session(
+      {required this.server,
+      required this.school,
+      required this.username,
+      required this.password,
+      this.userAgent = "Dart Untis API"}) {
     final ioc = HttpClient();
     ioc.badCertificateCallback =
         (X509Certificate cert, String host, int port) => true;
     _http = IOClient(ioc);
-  }
-
-  static Future<Session> init(
-      String server, String school, String username, String password,
-      {String userAgent = "Dart Untis API"}) async {
-    Session session =
-        Session._internal(server, school, username, password, userAgent);
-    await session.login();
-    return session;
-  }
-
-  static Session initNoLogin(
-      String server, String school, String username, String password,
-      {String userAgent = "Dart Untis API"}) {
-    Session session =
-        Session._internal(server, school, username, password, userAgent);
-    return session;
+    _request(
+      _postify(
+        "authenticate",
+        {"user": username, "password": password, "client": userAgent},
+      ),
+    ).then(
+      (value) {
+        _sessionId = value["sessionId"] as String;
+        if (value.containsKey("personId")) {
+          userId = IdProvider._(
+            value["personType"] as int,
+            value["personId"] as int,
+          );
+        }
+        if (value.containsKey("klasseId")) {
+          userKlasseId = IdProvider._withType(
+            IdProviderTypes.klasse,
+            value["klasseId"] as int,
+          );
+        }
+      },
+    );
   }
 
   Future<dynamic> _request(Map<String, Object> requestBody,
@@ -130,24 +140,6 @@ class Session {
       "jsonrpc": "2.0",
     };
     return postBody;
-  }
-
-  Future<void> login() async {
-    var result = await _request(_postify("authenticate",
-        {"user": username, "password": _password, "client": userAgent}));
-    _sessionId = result["sessionId"] as String;
-    if (result.containsKey("personId")) {
-      userId = IdProvider._(
-        result["personType"] as int,
-        result["personId"] as int,
-      );
-    }
-    if (result.containsKey("klasseId")) {
-      userKlasseId = IdProvider._withType(
-        IdProviderTypes.klasse,
-        result["klasseId"] as int,
-      );
-    }
   }
 
   bool _isSamePeriod(Period period1, Period period2) {
@@ -256,7 +248,109 @@ class Session {
       }
     }
 
+    getTimetableStream(idProvider).forEach((element) { });
+
     return timetable;
+  }
+
+  Stream<List<Period>> getTimetableStream(
+    IdProvider idProvider, {
+    DateTime? startDate,
+    DateTime? endDate,
+    bool useCache = false,
+    bool combineSamePeriods = true,
+  }) async* {
+    var id = idProvider.id, type = idProvider.type.index + 1;
+
+    startDate = startDate ?? DateTime.now();
+    endDate = endDate ?? startDate;
+    if (startDate.compareTo(endDate) == 1) {
+      throw Exception("startDate must be equal to or before the endDate.");
+    }
+    conv(DateTime dateTime) =>
+        dateTime.toIso8601String().substring(0, 10).replaceAll("-", "");
+
+    for (DateTime currentDay = startDate;
+        currentDay.isBefore(endDate);
+        currentDay = currentDay.add(const Duration(days: 1))) {
+      var rawTimetable = await _request(
+        _postify(
+          "getTimetable",
+          {
+            "id": id,
+            "type": type,
+            "startDate": conv.call(currentDay),
+            "endDate": conv.call(currentDay),
+          },
+        ),
+        useCache: useCache,
+      );
+
+      List<Period> timetable = _parseTimetable(rawTimetable);
+
+      // Search for all corresponding names
+      List<Subject> allSubjects = await getSubjects();
+      for (Period period in timetable) {
+        if (period.subjectIds.isNotEmpty) {
+          int id = period.subjectIds[0].id;
+          period.name =
+              allSubjects.where((element) => element.id.id == id).first.name;
+        }
+      }
+      // Search for all corresponding teacher names
+      List<Teacher> allTeachers = await getTeachers();
+      for (Period period in timetable) {
+        if (period.teacherIds.isNotEmpty) {
+          int id = period.teacherIds[0].id;
+          Iterable<Teacher> possibleTeachers =
+              allTeachers.where((element) => element.id.id == id);
+          if (possibleTeachers.isNotEmpty) {
+            period.teacherName = possibleTeachers.first.surName!;
+            if (possibleTeachers.first.id.id == 80) {
+              period.isCancelled = true; // Cancelled Period (EVA) for my school
+            }
+          }
+        }
+      }
+      // Search for corresponding room number
+      List<Room> allRooms = await getRooms();
+      for (Period period in timetable) {
+        if (period.roomIds.isNotEmpty) {
+          int id = period.roomIds[0].id;
+          Iterable<Room> possibleRooms =
+              allRooms.where((element) => element.id.id == id);
+          if (possibleRooms.isNotEmpty) {
+            period.roomName = possibleRooms.first.name!;
+          }
+        }
+      }
+
+      // Sort by time
+      timetable.sort((a, b) {
+        int sorter = a.startTime.compareTo(b.startTime);
+        if (sorter == 0) {
+          sorter = a.name.compareTo(b.name);
+        }
+        return sorter;
+      });
+      if (combineSamePeriods) {
+        for (int i = 0; i < timetable.length; i++) {
+          for (int j = 0; j < timetable.length; j++) {
+            if (_isSamePeriod(timetable[i], timetable[j])) {
+              if (timetable[i].startTime.compareTo(timetable[j].startTime) <
+                  0) {
+                timetable[i].endTime = timetable[j].endTime;
+              } else {
+                timetable[i].startTime = timetable[j].startTime;
+              }
+              timetable.remove(timetable[j]);
+            }
+          }
+        }
+      }
+
+      yield timetable;
+    }
   }
 
   List<Period> _parseTimetable(List<dynamic> rawTimetable) {
