@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -55,15 +56,8 @@ class _CalendarState extends State<Calendar> {
   }
 
   Future<List<Period>> _initTimeTable() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    untisSession = await Session.init(
-      prefs.getString('serverURL') ?? '',
-      prefs.getString('school') ?? '',
-      prefs.getString('username') ?? '',
-      prefs.getString('password') ?? '',
-    );
-    untisSession.cacheDisposeTime = 15;
-    untisSession.cacheLengthMaximum = 40; // Twice the default (?)
+    GetIt getIt = GetIt.instance;
+    untisSession = getIt<Session>();
     var userId = untisSession.userId;
     return await untisSession.getTimetable(
       userId!,

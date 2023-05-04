@@ -1,12 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:huntis/components/app_scaffold.dart';
+import 'package:huntis/untis_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'calendar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final getIt = GetIt.instance;
 
 Future<void> main() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  getIt.registerSingleton<Session>(
+    await Session.init(
+      prefs.getString('serverURL') ?? '',
+      prefs.getString('school') ?? '',
+      prefs.getString('username') ?? '',
+      prefs.getString('password') ?? '',
+    ),
+  );
   runApp(const MyApp());
 }
 

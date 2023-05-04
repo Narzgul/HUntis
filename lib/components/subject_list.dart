@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../untis_api.dart';
@@ -27,13 +28,8 @@ class _SubjectListState extends State<SubjectList> {
   }
 
   Future<List<String>> _getSubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var untisSession = await Session.init(
-      prefs.getString('serverURL') ?? '',
-      prefs.getString('school') ?? '',
-      prefs.getString('username') ?? '',
-      prefs.getString('password') ?? '',
-    );
+    GetIt getIt = GetIt.instance;
+    var untisSession = getIt<Session>();
 
     var userId = untisSession.userId;
     List<Period> timetable = await untisSession.getTimetable(
