@@ -54,7 +54,6 @@ class Session {
     Session session =
         Session._internal(server, school, username, password, userAgent);
     await session.login();
-    print("Session initialized");
     return session;
   }
 
@@ -177,7 +176,6 @@ class Session {
     bool useCache = false,
     bool combineSamePeriods = true,
   }) async {
-
     var id = idProvider.id, type = idProvider.type.index + 1;
 
     startDate = startDate ?? DateTime.now();

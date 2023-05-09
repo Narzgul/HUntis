@@ -30,7 +30,7 @@ class _SubjectListState extends State<SubjectList> {
   Future<List<String>> _getSubjects() async {
     GetIt getIt = GetIt.instance;
     var untisSession = getIt<Session>();
-    if(!untisSession.isLoggedIn) {
+    if (!untisSession.isLoggedIn) {
       await untisSession.login();
     }
 

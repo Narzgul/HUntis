@@ -9,8 +9,7 @@ import 'calendar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 late SharedPreferences _prefs;
-late final _prefsFuture =
-    SharedPreferences.getInstance().then((v) => _prefs = v);
+final _prefsFuture = SharedPreferences.getInstance().then((v) => _prefs = v);
 
 Future<void> main() async {
   runApp(const MyApp());
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   void _initSession() async {
-    print('init session');
     GetIt getIt = GetIt.instance;
     getIt.registerSingleton<Session>(
       Session.initNoLogin(
@@ -30,7 +28,6 @@ class MyApp extends StatelessWidget {
         _prefs.getString('password') ?? '',
       ),
     );
-    print('init session done');
     await getIt<Session>().login();
   }
 
@@ -60,7 +57,5 @@ class MyApp extends StatelessWidget {
         }
       },
     );
-
-
   }
 }

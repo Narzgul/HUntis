@@ -58,7 +58,7 @@ class _CalendarState extends State<Calendar> {
   Future<List<Period>> _initTimeTable() async {
     GetIt getIt = GetIt.instance;
     untisSession = getIt<Session>();
-    if(!untisSession.isLoggedIn) {
+    if (!untisSession.isLoggedIn) {
       await untisSession.login();
     }
     var userId = untisSession.userId;
@@ -66,7 +66,7 @@ class _CalendarState extends State<Calendar> {
       userId!,
       startDate: DateTime(2022, 8, 22),
       endDate: DateTime(2023, 5, 30),
-      useCache: false,
+      useCache: true,
     );
   }
 
