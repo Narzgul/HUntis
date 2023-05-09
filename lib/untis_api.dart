@@ -27,6 +27,9 @@ import 'package:string_similarity/string_similarity.dart';
 class Session {
   String? _sessionId;
   IdProvider? userId, userKlasseId;
+  List<Period> _timetable = [];
+  List<DateTime> cachedDays = [];
+  bool isLoggedIn = false;
 
   final String server, school, username, _password, userAgent;
 
@@ -51,6 +54,7 @@ class Session {
     Session session =
         Session._internal(server, school, username, password, userAgent);
     await session.login();
+    print("Session initialized");
     return session;
   }
 
@@ -148,6 +152,8 @@ class Session {
         result["klasseId"] as int,
       );
     }
+
+    isLoggedIn = true;
   }
 
   bool _isSamePeriod(Period period1, Period period2) {
@@ -171,6 +177,7 @@ class Session {
     bool useCache = false,
     bool combineSamePeriods = true,
   }) async {
+
     var id = idProvider.id, type = idProvider.type.index + 1;
 
     startDate = startDate ?? DateTime.now();
@@ -178,8 +185,15 @@ class Session {
     if (startDate.compareTo(endDate) == 1) {
       throw Exception("startDate must be equal to or before the endDate.");
     }
-    var conv = (DateTime dateTime) =>
+    conv(DateTime dateTime) =>
         dateTime.toIso8601String().substring(0, 10).replaceAll("-", "");
+
+    /*if(cachedDays.every((element) => _getDaysBetween(startDate!, endDate!).contains(element))) {
+      print("Using cached days");
+      return _timetable.where((element) => element.startTime.isAfter(startDate!) && element.startTime.isBefore(endDate!)).toList();
+    }*/
+
+    cachedDays.addAll(_getDaysBetween(startDate, endDate));
 
     var rawTimetable = await _request(
       _postify(
@@ -256,6 +270,7 @@ class Session {
       }
     }
 
+    _timetable.addAll(timetable);
     return timetable;
   }
 
@@ -575,6 +590,13 @@ class Session {
 
   void clearCache() {
     _cache.removeWhere((key, value) => true);
+  }
+
+  Iterable<DateTime> _getDaysBetween(DateTime startDate, DateTime endDate) {
+    return List.generate(
+        endDate.difference(startDate).inDays + 1,
+        (index) =>
+            DateTime(startDate.year, startDate.month, startDate.day + index));
   }
 }
 

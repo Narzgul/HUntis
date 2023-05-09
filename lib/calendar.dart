@@ -58,6 +58,9 @@ class _CalendarState extends State<Calendar> {
   Future<List<Period>> _initTimeTable() async {
     GetIt getIt = GetIt.instance;
     untisSession = getIt<Session>();
+    if(!untisSession.isLoggedIn) {
+      await untisSession.login();
+    }
     var userId = untisSession.userId;
     return await untisSession.getTimetable(
       userId!,
