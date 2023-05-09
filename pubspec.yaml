@@ -33,6 +33,7 @@ dependencies:
   time_planner: ^0.1.1
   shared_preferences:
   intl:
+  get_it: ^7.3.0
   flutter:
     sdk: flutter
 
