@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:huntis/components/input_dialog_setting.dart';
-import 'package:huntis/components/subject_selector.dart';
+import 'package:huntis/components/subject_color_list.dart';
+import 'package:huntis/components/selector_opener_tile.dart';
+import 'package:huntis/components/subject_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
@@ -75,7 +77,8 @@ class _SettingsState extends State<Settings> {
             _saveSettings();
           },
         ),
-        const SubjectSelector()
+        const SelectorOpenerTile(title: 'Subjects', selector: SubjectList()),
+        const SelectorOpenerTile(title: 'Colors', selector: SubjectColorList()),
       ],
     );
   }

@@ -13,21 +13,31 @@ class SubjectList extends StatefulWidget {
 
 class _SubjectListState extends State<SubjectList> {
   List<String> _mySubjects = [];
+  List<Color> _mySubjectColors = [];
 
   Future<void> _saveSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('mySubjects', _mySubjects);
+    await prefs.setStringList(
+      'mySubjectColors',
+      _mySubjectColors.map((e) => e.value.toString()).toList(),
+    );
   }
 
   Future<void> _loadSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? list = prefs.getStringList('mySubjects');
-    if (list != null) {
+    List<Color>? colors = prefs
+        .getStringList('mySubjectColors')
+        ?.map((e) => Color(int.parse(e, radix: 16)))
+        .toList();
+    if (list != null && colors != null) {
       _mySubjects = list;
+      _mySubjectColors = colors;
     }
   }
 
-  Future<List<String>> _getSubjects() async {
+  Future<List<String>> _getAllSubjects() async {
     GetIt getIt = GetIt.instance;
     var untisSession = getIt<Session>();
     if (!untisSession.isLoggedIn) {
@@ -58,7 +68,7 @@ class _SubjectListState extends State<SubjectList> {
     setState(() {}); // Crashes app if not used :(
     _loadSubjects();
     return FutureBuilder<List<String>>(
-      future: _getSubjects(),
+      future: _getAllSubjects(),
       builder: (
         BuildContext context,
         AsyncSnapshot<List<String>> snapshot,
@@ -76,8 +86,10 @@ class _SubjectListState extends State<SubjectList> {
                   setState(() {
                     if (value == true) {
                       _mySubjects.add(snapshot.data![index]);
+                      _mySubjectColors.add(Colors.white);
                     } else {
                       _mySubjects.remove(snapshot.data![index]);
+                      _mySubjectColors.removeAt(index);
                     }
                   });
                   _saveSubjects();

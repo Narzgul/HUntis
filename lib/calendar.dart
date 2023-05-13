@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -137,37 +138,9 @@ class _CalendarState extends State<Calendar> {
         Expanded(
           child: ValueListenableBuilder<List<Period>>(
             valueListenable: _selectedPeriods,
-            builder: (context, value, _) {
-              return ListView.builder(
-                itemCount: value.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 4.0,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(12.0),
-                      color:
-                          value[index].isCancelled ? Colors.blue : Colors.white,
-                    ),
-                    child: ListTile(
-                      title: Text(value[index].name),
-                      subtitle: Text(value[index].getStartEndTime()),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(value[index].teacherName),
-                          const Spacer(),
-                          Text(value[index].roomName),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+            builder: (context, selectedPeriods, _) {
+              return PeriodList(
+                periods: selectedPeriods,
               );
             },
           ),
