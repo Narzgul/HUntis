@@ -101,7 +101,7 @@ class _CalendarState extends State<Calendar> {
         TableCalendar<Period>(
           focusedDay: _focusedDay,
           firstDay: DateTime(2022, 8, 10),
-          lastDay: DateTime(2023, 5, 30),
+          lastDay: DateTime(2023, 6, 21),
           startingDayOfWeek: StartingDayOfWeek.monday,
           calendarFormat: calendarFormat,
           weekendDays: const [DateTime.saturday, DateTime.sunday],

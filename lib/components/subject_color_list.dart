@@ -11,31 +11,44 @@ class SubjectColorList extends StatefulWidget {
 }
 
 class _SubjectColorListState extends State<SubjectColorList> {
+  List<String> _mySubjects = [];
+  Map<String, Color> _mySubjectColors = {};
+
+  Future<void> _saveSubjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> mySubjectColorsList = [];
+    _mySubjectColors.forEach(
+          (key, value) =>
+          mySubjectColorsList.add("$key:${value.value.toRadixString(16)}"),
+    );
+    await prefs.setStringList(
+      'mySubjectColors',
+      mySubjectColorsList,
+    );
+  }
+
   Future<void> _loadSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? list = prefs.getStringList('mySubjects');
+    List<String>? colors = prefs.getStringList('mySubjectColors');
+    print(colors);
+    _mySubjectColors = {
+      for (var e in colors ?? [])
+        e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
+    };
     if (list != null) {
+      _mySubjects = list;
     }
   }
 
   Future<Map<String, Color>> _getSubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? subjects = prefs.getStringList('mySubjects');
-    List<Color>? colors = prefs
-        .getStringList('mySubjectColors')
-        ?.map((e) => Color(int.parse(e, radix: 16)))
-        .toList();
-    if (subjects != null && colors != null) {
-      return Map.fromIterables(subjects, colors);
-    } else {
-      return {};
-    }
+    await _loadSubjects();
+    return _mySubjectColors;
   }
 
   @override
   Widget build(BuildContext context) {
     setState(() {}); // Crashes app if not used :(
-    _loadSubjects();
     return FutureBuilder<Map<String, Color>>(
       future: _getSubjects(),
       builder: (
@@ -85,17 +98,8 @@ class _SubjectColorListState extends State<SubjectColorList> {
                     },
                   );
                   if (newColor != null) {
-                    subjects[element.key] = newColor;
-                    List<String> subjectsList = [];
-                    List<String> colorsList = [];
-                    subjects.forEach((key, value) {
-                      subjectsList.add(key);
-                      colorsList.add(value.value.toRadixString(16));
-                    });
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    await prefs.setStringList('mySubjects', subjectsList);
-                    await prefs.setStringList('mySubjectColors', colorsList);
+                    _mySubjectColors[element.key] = newColor;
+                    _saveSubjects();
                     setState(() {});
                   }
                 },

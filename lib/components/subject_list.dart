@@ -13,27 +13,32 @@ class SubjectList extends StatefulWidget {
 
 class _SubjectListState extends State<SubjectList> {
   List<String> _mySubjects = [];
-  List<Color> _mySubjectColors = [];
+  Map<String, Color> _mySubjectColors = {};
 
   Future<void> _saveSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('mySubjects', _mySubjects);
+    List<String> mySubjectColorsList = [];
+    _mySubjectColors.forEach(
+      (key, value) =>
+          mySubjectColorsList.add("$key:${value.value.toRadixString(16)}"),
+    );
     await prefs.setStringList(
       'mySubjectColors',
-      _mySubjectColors.map((e) => e.value.toString()).toList(),
+      mySubjectColorsList,
     );
   }
 
   Future<void> _loadSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? list = prefs.getStringList('mySubjects');
-    List<Color>? colors = prefs
-        .getStringList('mySubjectColors')
-        ?.map((e) => Color(int.parse(e, radix: 16)))
-        .toList();
-    if (list != null && colors != null) {
+    List<String>? colors = prefs.getStringList('mySubjectColors');
+    _mySubjectColors = {
+      for (var e in colors ?? [])
+        e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
+    };
+    if (list != null) {
       _mySubjects = list;
-      _mySubjectColors = colors;
     }
   }
 
@@ -48,7 +53,7 @@ class _SubjectListState extends State<SubjectList> {
     List<Period> timetable = await untisSession.getTimetable(
       userId!,
       startDate: DateTime.now().subtract(const Duration(days: 30)),
-      endDate: DateTime.now().add(const Duration(days: 30)),
+      endDate: DateTime.now().add(const Duration(days: 0)),
       useCache: false,
     );
 
@@ -86,10 +91,10 @@ class _SubjectListState extends State<SubjectList> {
                   setState(() {
                     if (value == true) {
                       _mySubjects.add(snapshot.data![index]);
-                      _mySubjectColors.add(Colors.white);
+                      _mySubjectColors[snapshot.data![index]] = Colors.green;
                     } else {
                       _mySubjects.remove(snapshot.data![index]);
-                      _mySubjectColors.removeAt(index);
+                      _mySubjectColors.remove(snapshot.data![index]);
                     }
                   });
                   _saveSubjects();
