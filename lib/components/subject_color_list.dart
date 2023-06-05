@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,14 +10,13 @@ class SubjectColorList extends StatefulWidget {
 }
 
 class _SubjectColorListState extends State<SubjectColorList> {
-  List<String> _mySubjects = [];
   Map<String, Color> _mySubjectColors = {};
 
   Future<void> _saveSubjects() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> mySubjectColorsList = [];
     _mySubjectColors.forEach(
-          (key, value) =>
+      (key, value) =>
           mySubjectColorsList.add("$key:${value.value.toRadixString(16)}"),
     );
     await prefs.setStringList(
@@ -31,14 +29,11 @@ class _SubjectColorListState extends State<SubjectColorList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? list = prefs.getStringList('mySubjects');
     List<String>? colors = prefs.getStringList('mySubjectColors');
-    print(colors);
     _mySubjectColors = {
       for (var e in colors ?? [])
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
-    if (list != null) {
-      _mySubjects = list;
-    }
+    if (list != null) {}
   }
 
   Future<Map<String, Color>> _getSubjects() async {

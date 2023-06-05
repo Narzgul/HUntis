@@ -26,33 +26,13 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
 
-    try {
-      _initTimeTable().then(
-        (value) {
-          setState(() {
-            timetable = value;
-          });
-        },
-      );
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Error"),
-            content: Text("An error has occurred: $e"),
-            actions: [
-              TextButton(
-                child: const Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    _initTimeTable().then(
+      (value) {
+        setState(() {
+          timetable = value;
+        });
+      },
+    );
     _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
   }
 
@@ -66,7 +46,7 @@ class _CalendarState extends State<Calendar> {
     return await untisSession.getTimetable(
       userId!,
       startDate: DateTime(2022, 8, 22),
-      endDate: DateTime(2023, 5, 30),
+      endDate: DateTime(2023, 6, 21),
       useCache: true,
     );
   }
@@ -139,9 +119,15 @@ class _CalendarState extends State<Calendar> {
           child: ValueListenableBuilder<List<Period>>(
             valueListenable: _selectedPeriods,
             builder: (context, selectedPeriods, _) {
-              return PeriodList(
-                periods: selectedPeriods,
-              );
+              if (selectedPeriods.isEmpty) {
+                return const Center(
+                  child: Text("No lessons found for this day"),
+                );
+              } else {
+                return PeriodList(
+                  periods: selectedPeriods,
+                );
+              }
             },
           ),
         ),
