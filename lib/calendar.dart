@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -25,33 +26,13 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
 
-    try {
-      _initTimeTable().then(
-        (value) {
-          setState(() {
-            timetable = value;
-          });
-        },
-      );
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Error"),
-            content: Text("An error has occurred: $e"),
-            actions: [
-              TextButton(
-                child: const Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    _initTimeTable().then(
+      (value) {
+        setState(() {
+          timetable = value;
+        });
+      },
+    );
     _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
   }
 
@@ -66,7 +47,7 @@ class _CalendarState extends State<Calendar> {
     return await untisSession.getTimetable(
       userId!,
       startDate: DateTime(2022, 8, 22),
-      endDate: DateTime(2023, 5, 30),
+      endDate: DateTime(2023, 6, 21),
       useCache: true,
     );
   }
@@ -101,7 +82,7 @@ class _CalendarState extends State<Calendar> {
         TableCalendar<Period>(
           focusedDay: _focusedDay,
           firstDay: DateTime(2022, 8, 10),
-          lastDay: DateTime(2023, 5, 30),
+          lastDay: DateTime(2023, 6, 21),
           startingDayOfWeek: StartingDayOfWeek.monday,
           calendarFormat: calendarFormat,
           weekendDays: const [DateTime.saturday, DateTime.sunday],
@@ -155,40 +136,16 @@ class _CalendarState extends State<Calendar> {
             },
             child: ValueListenableBuilder<List<Period>>(
               valueListenable: _selectedPeriods,
-              builder: (context, value, _) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        // Borders around the tiles
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: value[index].isCancelled
-                            ? Colors.blue
-                            : Colors.white,
-                      ),
-                      child: ListTile(
-                        title: Text(value[index].name),
-                        subtitle: Text(value[index].getStartEndTime()),
-                        trailing: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.end, // Align to the right
-                          children: [
-                            Text(value[index].teacherName),
-                            const Spacer(),
-                            Text(value[index].roomName),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
+              builder: (context, selectedPeriods, _) {
+                if (selectedPeriods.isEmpty) {
+                  return const Center(
+                    child: Text("No lessons found for this day"),
+                  );
+                } else {
+                  return PeriodList(
+                    periods: selectedPeriods,
+                  );
+                }
               },
             ),
           ),
