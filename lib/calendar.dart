@@ -155,40 +155,16 @@ class _CalendarState extends State<Calendar> {
             },
             child: ValueListenableBuilder<List<Period>>(
               valueListenable: _selectedPeriods,
-              builder: (context, value, _) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        // Borders around the tiles
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: value[index].isCancelled
-                            ? Colors.blue
-                            : Colors.white,
-                      ),
-                      child: ListTile(
-                        title: Text(value[index].name),
-                        subtitle: Text(value[index].getStartEndTime()),
-                        trailing: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.end, // Align to the right
-                          children: [
-                            Text(value[index].teacherName),
-                            const Spacer(),
-                            Text(value[index].roomName),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
+              builder: (context, selectedPeriods, _) {
+                if (selectedPeriods.isEmpty) {
+                  return const Center(
+                    child: Text("No lessons found for this day"),
+                  );
+                } else {
+                  return PeriodList(
+                    periods: selectedPeriods,
+                  );
+                }
               },
             ),
           ),

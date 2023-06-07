@@ -20,14 +20,16 @@ class MyApp extends StatelessWidget {
 
   void _initSession() async {
     GetIt getIt = GetIt.instance;
-    getIt.registerSingleton<Session>(
-      Session.initNoLogin(
-        _prefs.getString('serverURL') ?? '',
-        _prefs.getString('school') ?? '',
-        _prefs.getString('username') ?? '',
-        _prefs.getString('password') ?? '',
-      ),
-    );
+    if (!getIt.isRegistered<Session>()) {
+      getIt.registerSingleton<Session>(
+        Session.initNoLogin(
+          _prefs.getString('serverURL') ?? '',
+          _prefs.getString('school') ?? '',
+          _prefs.getString('username') ?? '',
+          _prefs.getString('password') ?? '',
+        ),
+      );
+    }
     await getIt<Session>().login();
   }
 
