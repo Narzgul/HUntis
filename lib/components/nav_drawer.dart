@@ -12,6 +12,18 @@ class NavDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
+          const DrawerHeader(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+            ),
+            child: Text(
+              'HUntis',
+              style: TextStyle(
+                fontSize: 26,
+              ),
+            ),
+          ),
           ListTile(
             title: const Text('Calendar'),
             leading: const Icon(Icons.calendar_month),
