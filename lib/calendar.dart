@@ -28,8 +28,10 @@ class _CalendarState extends State<Calendar> {
 
     _initTimeTable().then(
       (value) {
+        // Update values once they are ready
         setState(() {
           timetable = value;
+          _selectedPeriods.value = _getEventsForDay(_selectedDay);
         });
       },
     );
@@ -42,7 +44,7 @@ class _CalendarState extends State<Calendar> {
     if (!untisSession.isLoggedIn) {
       await untisSession.login();
     }
-    
+
     var userId = untisSession.userId;
     return await untisSession.getTimetable(
       userId!,
@@ -138,9 +140,19 @@ class _CalendarState extends State<Calendar> {
               valueListenable: _selectedPeriods,
               builder: (context, selectedPeriods, _) {
                 if (selectedPeriods.isEmpty) {
-                  return const Center(
-                    child: Text("No lessons found for this day"),
-                  );
+                  if (timetable.isEmpty) {
+                    // Waiting for values from API
+                    return const Center(child: CircularProgressIndicator());
+                  } else {
+                    // No lessons found for this day
+                    return Container(
+                      color: Colors.grey[300],
+                      // Also makes whole area draggable
+                      child: const Center(
+                        child: Text("No lessons found for this day"),
+                      ),
+                    );
+                  }
                 } else {
                   return PeriodList(
                     periods: selectedPeriods,
