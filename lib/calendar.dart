@@ -133,6 +133,7 @@ class _CalendarState extends State<Calendar> {
                   _selectedDay = _selectedDay.add(const Duration(days: 1));
                 });
               }
+              _focusedDay = _selectedDay;
               _selectedPeriods.value =
                   _getEventsForDay(_selectedDay); // Update timetable
             },
