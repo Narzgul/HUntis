@@ -20,9 +20,13 @@ class PeriodList extends StatelessWidget {
   }
 
   Color _getBestTextColor(Color background) {
+    // Convert the rgb color values to a 0 to 1 scale
     double red = background.red / 255;
     double green = background.green / 255;
     double blue = background.blue / 255;
+    // Get the average color value and check if it's higher than 0.6
+    // If it is, the color is a lighter color and the best opposing color is Black
+    // If it is not, the color is a darker color and the best opposing color is White
     if ((red + green + blue) / 3.0 > 0.6) {
       return Colors.black;
     }
