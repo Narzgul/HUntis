@@ -32,7 +32,18 @@ class _SelectorOpenerTileState extends State<SelectorOpenerTile> {
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
-                  Flexible(child: widget.selector),
+                  Flexible(
+                    fit: FlexFit.tight, // Makes the selector fill the dialog
+                    child: widget.selector,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextButton(
+                      onPressed: () =>
+                          Navigator.of(context).pop(), // Exit dialog
+                      child: const Text('Exit'),
+                    ),
+                  ),
                 ],
               ),
             );
