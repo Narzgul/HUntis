@@ -30,6 +30,7 @@ class Session {
   List<Period> _timetable = [];
   List<DateTime> cachedDays = [];
   bool isLoggedIn = false;
+  int maxRetries = 5;
 
   final String server, school, username, _password, userAgent;
 
@@ -574,7 +575,7 @@ class Session {
   /// For valid values for the [methodeName] and possible [parameters]
   /// visit the official documentation https://untis-sr.ch/wp-content/uploads/2019/11/2018-09-20-WebUntis_JSON_RPC_API.pdf
   Future<dynamic> customRequest(
-      String methodeName, Map<String, Object> parameters) async {
+      String methodeName, Map<String, Object> parameters, {required }) async {
     return await _request(_postify(methodeName, parameters));
   }
 
@@ -582,6 +583,7 @@ class Session {
     await _request(_postify("logout", {}));
     userId = null;
     userKlasseId = null;
+    isLoggedIn = false;
   }
 
   Future<void> logout() async {
