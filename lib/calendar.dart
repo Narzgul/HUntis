@@ -15,8 +15,8 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
-  DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
+  //DateTime _focusedDay = DateTime.now(), _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime(2023, 6, 21), _selectedDay = DateTime(2023, 6, 21);
   late Session untisSession;
   List<String> _mySubjects = [];
 
@@ -27,7 +27,7 @@ class _CalendarState extends State<Calendar> {
     super.initState();
 
     _initTimeTable().then(
-      (value) {
+          (value) {
         // Update values once they are ready
         setState(() {
           timetable = value;
@@ -79,91 +79,146 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TableCalendar<Period>(
-          focusedDay: _focusedDay,
-          firstDay: DateTime(2022, 8, 10),
-          lastDay: DateTime(2023, 6, 21),
-          startingDayOfWeek: StartingDayOfWeek.monday,
-          calendarFormat: calendarFormat,
-          weekendDays: const [DateTime.saturday, DateTime.sunday],
-          availableCalendarFormats: const {
-            CalendarFormat.week: 'Week',
-            CalendarFormat.twoWeeks: 'Two Weeks',
-            CalendarFormat.month: 'Month',
-          },
-          selectedDayPredicate: (day) {
-            return isSameDay(_selectedDay, day);
-          },
-          onDaySelected: (selectedDay, focusedDay) {
-            if (!isSameDay(_selectedDay, selectedDay)) {
-              // Call `setState()` when updating the selected day
-              setState(() {
-                _selectedDay = selectedDay;
-              });
-            }
-            // Update timetable
-            _selectedPeriods.value = _getEventsForDay(_selectedDay);
-          },
-          onFormatChanged: (format) {
-            if (calendarFormat != format) {
-              // Call `setState()` when updating calendar format
-              setState(() {
-                calendarFormat = format;
-              });
-            }
-          },
-          onPageChanged: (focusedDay) {
-            _focusedDay = focusedDay;
-          },
-        ),
-        Expanded(
-          child: GestureDetector(
-            // Swipe to change day
-            onHorizontalDragEnd: (details) {
-              if (details.primaryVelocity! > 0) {
-                // Swipe left
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: Column(
+        children: [
+          TableCalendar<Period>(
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              weekendStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              todayTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+              weekendTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              outsideTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              defaultTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              weekNumberTextStyle: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+            headerStyle: HeaderStyle(
+              formatButtonShowsNext: false,
+              titleTextStyle: TextStyle(
+                fontSize: 17,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              leftChevronIcon: Icon(
+                Icons.chevron_left,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              rightChevronIcon: Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+            weekNumbersVisible: true,
+            focusedDay: _focusedDay,
+            firstDay: DateTime(2022, 8, 10),
+            lastDay: DateTime(2023, 6, 21),
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            calendarFormat: calendarFormat,
+            availableCalendarFormats: const {
+              CalendarFormat.week: 'Week',
+              CalendarFormat.twoWeeks: 'Two Weeks',
+              CalendarFormat.month: 'Month',
+            },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              if (!isSameDay(_selectedDay, selectedDay)) {
+                // Call `setState()` when updating the selected day
                 setState(() {
-                  _selectedDay = _selectedDay.subtract(const Duration(days: 1));
-                });
-              } else if (details.primaryVelocity! < 0) {
-                // Swipe right
-                setState(() {
-                  _selectedDay = _selectedDay.add(const Duration(days: 1));
+                  _selectedDay = selectedDay;
                 });
               }
-              _focusedDay = _selectedDay;
-              _selectedPeriods.value =
-                  _getEventsForDay(_selectedDay); // Update timetable
+              // Update timetable
+              _selectedPeriods.value = _getEventsForDay(_selectedDay);
             },
-            child: ValueListenableBuilder<List<Period>>(
-              valueListenable: _selectedPeriods,
-              builder: (context, selectedPeriods, _) {
-                if (selectedPeriods.isEmpty) {
-                  if (timetable.isEmpty) {
-                    // Waiting for values from API
-                    return const Center(child: CircularProgressIndicator());
+            onFormatChanged: (format) {
+              if (calendarFormat != format) {
+                // Call `setState()` when updating calendar format
+                setState(() {
+                  calendarFormat = format;
+                });
+              }
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+          ),
+          Expanded(
+            child: GestureDetector(
+              // Swipe to change day
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity! > 0) {
+                  // Swipe left
+                  setState(() {
+                    _selectedDay = _selectedDay.subtract(const Duration(days: 1));
+                  });
+                } else if (details.primaryVelocity! < 0) {
+                  // Swipe right
+                  setState(() {
+                    _selectedDay = _selectedDay.add(const Duration(days: 1));
+                  });
+                }
+                _focusedDay = _selectedDay;
+                _selectedPeriods.value =
+                    _getEventsForDay(_selectedDay); // Update timetable
+              },
+              child: ValueListenableBuilder<List<Period>>(
+                valueListenable: _selectedPeriods,
+                builder: (context, selectedPeriods, _) {
+                  if (selectedPeriods.isEmpty) {
+                    if (timetable.isEmpty) {
+                      // Waiting for values from API
+                      return const Center(child: CircularProgressIndicator());
+                    } else {
+                      // No lessons found for this day
+                      return Container(
+                        color: Colors.grey[300],
+                        // Also makes whole area draggable
+                        child: const Center(
+                          child: Text("No lessons found for this day"),
+                        ),
+                      );
+                    }
                   } else {
-                    // No lessons found for this day
-                    return Container(
-                      color: Colors.grey[300],
-                      // Also makes whole area draggable
-                      child: const Center(
-                        child: Text("No lessons found for this day"),
-                      ),
+                    return PeriodList(
+                      periods: selectedPeriods,
                     );
                   }
-                } else {
-                  return PeriodList(
-                    periods: selectedPeriods,
-                  );
-                }
-              },
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

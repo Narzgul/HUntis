@@ -14,6 +14,8 @@ class AppScaffold extends StatelessWidget{
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: Scaffold(
         drawer: const NavDrawer(),
         appBar: AppBar(

@@ -48,9 +48,6 @@ class MyApp extends StatelessWidget {
 
           return MaterialApp(
             title: 'HUntis',
-            theme: ThemeData(
-              primarySwatch: Colors.orange,
-            ),
             navigatorKey: navigatorKey,
             home: const AppScaffold(body: Calendar(), title: 'Calendar'),
           );
