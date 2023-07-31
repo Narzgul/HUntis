@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:huntis/components/input_dialog_setting.dart';
 import 'package:huntis/components/subject_color_list.dart';
 import 'package:huntis/components/selector_opener_tile.dart';
@@ -15,8 +16,8 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   String serverURL = '', school = '', username = '', password = '';
 
-  _loadSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  _loadSettings() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     setState(() {
       serverURL = prefs.getString('serverURL') ?? '';
       school = prefs.getString('school') ?? '';
@@ -25,8 +26,8 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  _saveSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  _saveSettings() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     setState(() {
       prefs.setString('serverURL', serverURL);
       prefs.setString('school', school);

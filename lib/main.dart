@@ -9,8 +9,6 @@ import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
-late SharedPreferences _prefs;
-final _prefsFuture = SharedPreferences.getInstance().then((v) => _prefs = v);
 
 Future<void> main() async {
   runApp(const MyApp());
@@ -20,21 +18,30 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   bool hasLoginData() {
-    return _prefs.containsKey('serverURL') &&
-        _prefs.containsKey('school') &&
-        _prefs.containsKey('username') &&
-        _prefs.containsKey('password');
+    var prefs = GetIt.instance<SharedPreferences>();
+    return prefs.containsKey('serverURL') &&
+        prefs.containsKey('school') &&
+        prefs.containsKey('username') &&
+        prefs.containsKey('password');
+  }
+
+  Future<void> _initPrefs() async {
+    GetIt getIt = GetIt.instance;
+    getIt.registerSingleton<SharedPreferences>(
+      await SharedPreferences.getInstance(),
+    );
   }
 
   Future<void> _initSession() async {
     GetIt getIt = GetIt.instance;
+    SharedPreferences prefs = getIt<SharedPreferences>();
     if (!getIt.isRegistered<Session>()) {
       getIt.registerSingleton<Session>(
         Session.initNoLogin(
-          _prefs.getString('serverURL') ?? '',
-          _prefs.getString('school') ?? '',
-          _prefs.getString('username') ?? '',
-          _prefs.getString('password') ?? '',
+          prefs.getString('serverURL') ?? '',
+          prefs.getString('school') ?? '',
+          prefs.getString('username') ?? '',
+          prefs.getString('password') ?? '',
         ),
       );
     }
@@ -49,9 +56,9 @@ class MyApp extends StatelessWidget {
     };
 
     return FutureBuilder(
-      future: _prefsFuture,
+      future: _initPrefs(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.done) {
           if (!hasLoginData()) {
             return MaterialApp(
               title: 'HUntis',
@@ -63,28 +70,28 @@ class MyApp extends StatelessWidget {
             );
           } else {
             return FutureBuilder(
-            future: _initSession(),
-            builder: (context, AsyncSnapshot<void> snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return MaterialApp(
-                  title: 'HUntis',
-                  navigatorKey: navigatorKey,
-                  home: const AppScaffold(
-                    body: CalendarPage(),
-                    title: 'Calendar',
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text('Error while initializing Session'),
-                );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          );
+              future: _initSession(),
+              builder: (context, AsyncSnapshot<void> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return MaterialApp(
+                    title: 'HUntis',
+                    navigatorKey: navigatorKey,
+                    home: const AppScaffold(
+                      body: CalendarPage(),
+                      title: 'Calendar',
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Center(
+                    child: Text('Error while initializing Session'),
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            );
           }
         } else {
           return const Center(child: CircularProgressIndicator());

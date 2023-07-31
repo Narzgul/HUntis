@@ -12,35 +12,37 @@ class SubjectList extends StatefulWidget {
 }
 
 class _SubjectListState extends State<SubjectList> {
-  List<String> _mySubjects = [];
-  Map<String, Color> _mySubjectColors = {};
-
-  Future<void> _saveSubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('mySubjects', _mySubjects);
+  void _saveSubjectsAndColors(
+    List<String> mySubjects,
+    Map<String, Color> mySubjectColors,
+  ) {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    prefs.setStringList('mySubjects', mySubjects);
     List<String> mySubjectColorsList = [];
-    _mySubjectColors.forEach(
+    mySubjectColors.forEach(
       (key, value) =>
-          mySubjectColorsList.add("$key:${value.value.toRadixString(16)}"),
+          mySubjectColorsList.add('$key:${value.value.toRadixString(16)}'),
     );
-    await prefs.setStringList(
+    prefs.setStringList(
       'mySubjectColors',
       mySubjectColorsList,
     );
   }
 
-  Future<void> _loadSubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? list = prefs.getStringList('mySubjects');
+  List<String> _getSubjects() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    return prefs.getStringList('mySubjects') ?? [];
+  }
+
+  Map<String, Color> _getSubjectColors() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     List<String>? colors = prefs.getStringList('mySubjectColors');
-    _mySubjectColors = {
+    Map<String, Color> mySubjectColors = {
       for (var e in colors ?? [])
         // Decode color map from hex string
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
-    if (list != null) {
-      _mySubjects = list;
-    }
+    return mySubjectColors;
   }
 
   Future<List<String>> _getAvailableSubjects() async {
@@ -95,7 +97,9 @@ class _SubjectListState extends State<SubjectList> {
   @override
   Widget build(BuildContext context) {
     setState(() {}); // Crashes app if not used :(
-    _loadSubjects();
+
+    List<String> mySubjects = _getSubjects();
+    Map<String, Color> mySubjectColors = _getSubjectColors();
     return FutureBuilder<List<String>>(
       future: _getAvailableSubjects(),
       builder: (
@@ -111,18 +115,18 @@ class _SubjectListState extends State<SubjectList> {
             itemBuilder: (BuildContext context, int index) {
               return CheckboxListTile(
                 title: Text(snapshot.data![index]),
-                value: _mySubjects.contains(availableSubjects[index]),
+                value: mySubjects.contains(availableSubjects[index]),
                 onChanged: (bool? value) {
                   setState(() {
                     if (value == true) {
-                      _mySubjects.add(availableSubjects[index]);
-                      _mySubjectColors[availableSubjects[index]] = Colors.green;
+                      mySubjects.add(availableSubjects[index]);
+                      mySubjectColors[availableSubjects[index]] = Colors.green;
                     } else {
-                      _mySubjects.remove(snapshot.data![index]);
-                      _mySubjectColors.remove(snapshot.data![index]);
+                      mySubjects.remove(snapshot.data![index]);
+                      mySubjectColors.remove(snapshot.data![index]);
                     }
                   });
-                  _saveSubjects();
+                  _saveSubjectsAndColors(mySubjects, mySubjectColors);
                 },
               );
             },

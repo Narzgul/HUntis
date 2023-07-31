@@ -18,6 +18,14 @@ class _CalendarPageState extends State<CalendarPage> {
   late List<String> mySubjects;
   late Map<String, Color> mySubjectColors;
 
+  bool hasLoginData() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    return prefs.containsKey('serverURL') &&
+        prefs.containsKey('school') &&
+        prefs.containsKey('username') &&
+        prefs.containsKey('password');
+  }
+
   Future<void> _doAPICalls() async {
     GetIt getIt = GetIt.instance;
     untisSession = getIt<Session>();
@@ -37,31 +45,27 @@ class _CalendarPageState extends State<CalendarPage> {
       useCache: true,
     );
 
-    mySubjects = await _getMySubjects();
+    mySubjects = _getMySubjects();
     // Filter Timetable for mySubjects
     timetable = timetable
         .where((element) => mySubjects.contains(element.name))
         .toList();
 
-    print('Getting subject colors');
-    mySubjectColors = await _getSubjectColors();
-    print('Got subject colors');
+    mySubjectColors = _getSubjectColors();
   }
 
-  Future<Map<String, Color>> _getSubjectColors() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Map<String, Color> _getSubjectColors() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     List<String>? colors = prefs.getStringList('mySubjectColors');
-    print('Colors: $colors');
     Map<String, Color> mySubjectColors = {
       for (var e in colors ?? [])
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
-    print('MySubjectColors: $mySubjectColors');
     return mySubjectColors;
   }
 
-  Future<List<String>> _getMySubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> _getMySubjects() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     List<String>? mySubjects = prefs.getStringList('mySubjects');
     return mySubjects ?? [];
   }
