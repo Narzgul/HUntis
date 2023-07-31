@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/calendar_page.dart';
 import 'package:huntis/components/app_scaffold.dart';
+import 'package:huntis/settings.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +18,13 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  bool hasLoginData() {
+    return _prefs.containsKey('serverURL') &&
+        _prefs.containsKey('school') &&
+        _prefs.containsKey('username') &&
+        _prefs.containsKey('password');
+  }
 
   Future<void> _initSession() async {
     GetIt getIt = GetIt.instance;
@@ -44,7 +52,17 @@ class MyApp extends StatelessWidget {
       future: _prefsFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return FutureBuilder(
+          if (!hasLoginData()) {
+            return MaterialApp(
+              title: 'HUntis',
+              navigatorKey: navigatorKey,
+              home: const AppScaffold(
+                body: Settings(),
+                title: 'Settings',
+              ),
+            );
+          } else {
+            return FutureBuilder(
             future: _initSession(),
             builder: (context, AsyncSnapshot<void> snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
@@ -52,7 +70,9 @@ class MyApp extends StatelessWidget {
                   title: 'HUntis',
                   navigatorKey: navigatorKey,
                   home: const AppScaffold(
-                      body: CalendarPage(), title: 'Calendar'),
+                    body: CalendarPage(),
+                    title: 'Calendar',
+                  ),
                 );
               } else if (snapshot.hasError) {
                 return const Center(
@@ -65,6 +85,7 @@ class MyApp extends StatelessWidget {
               }
             },
           );
+          }
         } else {
           return const Center(child: CircularProgressIndicator());
         }

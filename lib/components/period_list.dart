@@ -32,9 +32,14 @@ class PeriodList extends StatelessWidget {
       itemCount: periods.length,
       shrinkWrap: true,
       itemBuilder: (context, index) {
-        Color textColor = _getBestTextColor(periods[index].isCancelled
-            ? Colors.blue
-            : mySubjectColors[periods[index].name]!);
+        Color primaryColor = Theme.of(context).colorScheme.primary;
+        if (periods[index].isCancelled) {
+          primaryColor = Colors.blue;
+        } else if (mySubjectColors.containsKey(periods[index].name)) {
+          primaryColor = mySubjectColors[periods[index].name]!;
+        }
+        Color textColor = _getBestTextColor(primaryColor);
+
         return Container(
           margin: const EdgeInsets.symmetric(
             horizontal: 12.0,
@@ -43,9 +48,7 @@ class PeriodList extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(),
             borderRadius: BorderRadius.circular(12.0),
-            color: periods[index].isCancelled
-                ? Colors.blue
-                : mySubjectColors[periods[index].name],
+            color: primaryColor,
           ),
           child: ListTile(
             title: periods[index].isCancelled

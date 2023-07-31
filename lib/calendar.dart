@@ -200,6 +200,7 @@ class _CalendarState extends State<Calendar> {
                       );
                     }
                   } else {
+                    // Got lessons for this day
                     return PeriodList(
                       periods: selectedPeriods,
                       mySubjectColors: widget.mySubjectColors,

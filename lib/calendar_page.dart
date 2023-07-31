@@ -43,17 +43,20 @@ class _CalendarPageState extends State<CalendarPage> {
         .where((element) => mySubjects.contains(element.name))
         .toList();
 
+    print('Getting subject colors');
     mySubjectColors = await _getSubjectColors();
+    print('Got subject colors');
   }
 
   Future<Map<String, Color>> _getSubjectColors() async {
-    Map<String, Color> mySubjectColors = {};
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? colors = prefs.getStringList('mySubjectColors');
-    mySubjectColors = {
+    print('Colors: $colors');
+    Map<String, Color> mySubjectColors = {
       for (var e in colors ?? [])
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
+    print('MySubjectColors: $mySubjectColors');
     return mySubjectColors;
   }
 
