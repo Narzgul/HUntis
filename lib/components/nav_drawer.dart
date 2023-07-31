@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:huntis/calendar_page.dart';
 import 'package:huntis/components/app_scaffold.dart';
 import 'package:huntis/settings.dart';
-
-import '../calendar.dart';
 
 class NavDrawer extends StatelessWidget {
   const NavDrawer({Key? key}) : super(key: key);
@@ -32,7 +31,7 @@ class NavDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const AppScaffold(
-                    body: Calendar(),
+                    body: CalendarPage(),
                     title: 'Calendar',
                   ),
                 ),

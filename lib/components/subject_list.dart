@@ -35,6 +35,7 @@ class _SubjectListState extends State<SubjectList> {
     List<String>? colors = prefs.getStringList('mySubjectColors');
     _mySubjectColors = {
       for (var e in colors ?? [])
+        // Decode color map from hex string
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
     if (list != null) {
@@ -42,7 +43,7 @@ class _SubjectListState extends State<SubjectList> {
     }
   }
 
-  Future<List<String>> _getAllSubjects() async {
+  Future<List<String>> _getAvailableSubjects() async {
     GetIt getIt = GetIt.instance;
     var untisSession = getIt<Session>();
     if (!untisSession.isLoggedIn) {
@@ -50,10 +51,33 @@ class _SubjectListState extends State<SubjectList> {
     }
 
     var userId = untisSession.userId;
+
+    // Get latest school year
+    var allSchoolYears = await untisSession.getSchoolyears();
+    allSchoolYears.sort((a, b) => a.endDate.compareTo(b.endDate));
+    Schoolyear schoolYear = allSchoolYears.last;
+
+    late DateTime startDate, endDate;
+
+    if (DateTime.now()
+        .add(const Duration(days: 30))
+        .isAfter(schoolYear.endDate)) {
+      // If today is after or within the last 30 days of the school year
+      startDate = schoolYear.endDate.subtract(const Duration(days: 30));
+      endDate = schoolYear.endDate;
+    } else if (DateTime.now().isBefore(schoolYear.startDate)) {
+      // If today is before or within the first 30 days of the school year
+      startDate = schoolYear.startDate;
+      endDate = schoolYear.startDate.add(const Duration(days: 30));
+    } else {
+      startDate = DateTime.now().subtract(const Duration(days: 15));
+      endDate = DateTime.now().add(const Duration(days: 15));
+    }
+
     List<Period> timetable = await untisSession.getTimetable(
       userId!,
-      startDate: DateTime.now().subtract(const Duration(days: 30)),
-      endDate: DateTime.now().add(const Duration(days: 0)),
+      startDate: startDate,
+      endDate: endDate,
       useCache: false,
     );
 
@@ -73,25 +97,26 @@ class _SubjectListState extends State<SubjectList> {
     setState(() {}); // Crashes app if not used :(
     _loadSubjects();
     return FutureBuilder<List<String>>(
-      future: _getAllSubjects(),
+      future: _getAvailableSubjects(),
       builder: (
         BuildContext context,
         AsyncSnapshot<List<String>> snapshot,
       ) {
         if (snapshot.hasData) {
+          List<String> availableSubjects = snapshot.data!;
           return ListView.builder(
             physics: const ScrollPhysics(),
             shrinkWrap: true,
-            itemCount: snapshot.data!.length,
+            itemCount: availableSubjects.length,
             itemBuilder: (BuildContext context, int index) {
               return CheckboxListTile(
                 title: Text(snapshot.data![index]),
-                value: _mySubjects.contains(snapshot.data![index]),
+                value: _mySubjects.contains(availableSubjects[index]),
                 onChanged: (bool? value) {
                   setState(() {
                     if (value == true) {
-                      _mySubjects.add(snapshot.data![index]);
-                      _mySubjectColors[snapshot.data![index]] = Colors.green;
+                      _mySubjects.add(availableSubjects[index]);
+                      _mySubjectColors[availableSubjects[index]] = Colors.green;
                     } else {
                       _mySubjects.remove(snapshot.data![index]);
                       _mySubjectColors.remove(snapshot.data![index]);

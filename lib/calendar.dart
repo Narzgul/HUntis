@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  final Session untisSession;
+  final Schoolyear schoolYear;
+  final List<Period> timetable;
+  final List<String> mySubjects;
+  final Map<String, Color> mySubjectColors;
+
+  const Calendar({
+    Key? key,
+    required this.untisSession,
+    required this.schoolYear,
+    required this.timetable,
+    required this.mySubjects,
+    required this.mySubjectColors,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CalendarState();
@@ -15,61 +26,34 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
   CalendarFormat calendarFormat = CalendarFormat.week;
-  //DateTime _focusedDay = DateTime.now(), _selectedDay = DateTime.now();
-  DateTime _focusedDay = DateTime(2023, 6, 21), _selectedDay = DateTime(2023, 6, 21);
-  late Session untisSession;
-  List<String> _mySubjects = [];
-
-  List<Period> timetable = [];
+  late DateTime _focusedDay, _selectedDay;
 
   @override
   void initState() {
     super.initState();
 
-    _initTimeTable().then(
-          (value) {
-        // Update values once they are ready
-        setState(() {
-          timetable = value;
-          _selectedPeriods.value = _getEventsForDay(_selectedDay);
-        });
-      },
-    );
+    // Set initial focused and selected day to within the school year
+    if (DateTime.now().isAfter(widget.schoolYear.endDate)) {
+      _focusedDay = widget.schoolYear.endDate;
+      _selectedDay = widget.schoolYear.endDate;
+    } else if (DateTime.now().isBefore(widget.schoolYear.startDate)) {
+      _focusedDay = widget.schoolYear.startDate;
+      _selectedDay = widget.schoolYear.startDate;
+    } else {
+      _focusedDay = DateTime.now();
+      _selectedDay = DateTime.now();
+    }
+
+    // _selectedPeriods updates when _focusedDay changes
     _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
-  }
-
-  Future<List<Period>> _initTimeTable() async {
-    GetIt getIt = GetIt.instance;
-    untisSession = getIt<Session>();
-    if (!untisSession.isLoggedIn) {
-      await untisSession.login();
-    }
-
-    var userId = untisSession.userId;
-    return await untisSession.getTimetable(
-      userId!,
-      startDate: DateTime(2022, 8, 22),
-      endDate: DateTime(2023, 6, 21),
-      useCache: true,
-    );
-  }
-
-  Future<void> _loadSubjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? list = prefs.getStringList('mySubjects');
-    if (list != null) {
-      _mySubjects = list;
-    }
   }
 
   List<Period> _getEventsForDay(DateTime day) {
     List<Period> periods = [];
 
-    // Filter for relevant Subjects
-    _loadSubjects();
-    for (Period period in timetable) {
-      if (isSameDay(period.startTime, day) &&
-          _mySubjects.contains(period.name)) {
+    // Filter for Subjects on that day
+    for (Period period in widget.timetable) {
+      if (isSameDay(period.startTime, day)) {
         periods.add(period);
       }
     }
@@ -138,8 +122,8 @@ class _CalendarState extends State<Calendar> {
             ),
             weekNumbersVisible: true,
             focusedDay: _focusedDay,
-            firstDay: DateTime(2022, 8, 10),
-            lastDay: DateTime(2023, 6, 21),
+            firstDay: widget.schoolYear.startDate,
+            lastDay: widget.schoolYear.endDate,
             startingDayOfWeek: StartingDayOfWeek.monday,
             calendarFormat: calendarFormat,
             availableCalendarFormats: const {
@@ -179,7 +163,8 @@ class _CalendarState extends State<Calendar> {
                 if (details.primaryVelocity! > 0) {
                   // Swipe left
                   setState(() {
-                    _selectedDay = _selectedDay.subtract(const Duration(days: 1));
+                    _selectedDay =
+                        _selectedDay.subtract(const Duration(days: 1));
                   });
                 } else if (details.primaryVelocity! < 0) {
                   // Swipe right
@@ -195,9 +180,15 @@ class _CalendarState extends State<Calendar> {
                 valueListenable: _selectedPeriods,
                 builder: (context, selectedPeriods, _) {
                   if (selectedPeriods.isEmpty) {
-                    if (timetable.isEmpty) {
-                      // Waiting for values from API
-                      return const Center(child: CircularProgressIndicator());
+                    if (widget.timetable.isEmpty) {
+                      // Got no date from the API
+                      return Container(
+                        color: Colors.red[300],
+                        // Also makes whole area draggable
+                        child: const Center(
+                          child: Text("Got no data from the API"),
+                        ),
+                      );
                     } else {
                       // No lessons found for this day
                       return Container(
@@ -211,6 +202,7 @@ class _CalendarState extends State<Calendar> {
                   } else {
                     return PeriodList(
                       periods: selectedPeriods,
+                      mySubjectColors: widget.mySubjectColors,
                     );
                   }
                 },

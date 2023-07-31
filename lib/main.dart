@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:huntis/calendar_page.dart';
 import 'package:huntis/components/app_scaffold.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'calendar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 late SharedPreferences _prefs;
@@ -18,7 +18,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  void _initSession() async {
+  Future<void> _initSession() async {
     GetIt getIt = GetIt.instance;
     if (!getIt.isRegistered<Session>()) {
       getIt.registerSingleton<Session>(
@@ -44,12 +44,26 @@ class MyApp extends StatelessWidget {
       future: _prefsFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          _initSession();
-
-          return MaterialApp(
-            title: 'HUntis',
-            navigatorKey: navigatorKey,
-            home: const AppScaffold(body: Calendar(), title: 'Calendar'),
+          return FutureBuilder(
+            future: _initSession(),
+            builder: (context, AsyncSnapshot<void> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return MaterialApp(
+                  title: 'HUntis',
+                  navigatorKey: navigatorKey,
+                  home: const AppScaffold(
+                      body: CalendarPage(), title: 'Calendar'),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Error while initializing Session'),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
           );
         } else {
           return const Center(child: CircularProgressIndicator());
