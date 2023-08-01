@@ -60,6 +60,11 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (!hasLoginData()) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please enter your login data in the settings'),
+              ),
+            );
             return MaterialApp(
               title: 'HUntis',
               navigatorKey: navigatorKey,

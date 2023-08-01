@@ -72,7 +72,18 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    if (!hasLoginData()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your login data in the settings'),
+        ),
+      );
+      return const Center(
+        child: Text('No login data found'),
+
+      );
+    } else {
+      return FutureBuilder(
       future: _doAPICalls(),
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -90,5 +101,6 @@ class _CalendarPageState extends State<CalendarPage> {
         }
       },
     );
+    }
   }
 }
