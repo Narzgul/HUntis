@@ -28,7 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   table_calendar:
-  http: ^0.13.4
+  http: ^1.1.0
   string_similarity: ^2.0.0
   time_planner: ^0.1.1
   flutter_colorpicker: ^1.0.3

@@ -179,6 +179,16 @@ class _CalendarState extends State<Calendar> {
               child: ValueListenableBuilder<List<Period>>(
                 valueListenable: _selectedPeriods,
                 builder: (context, selectedPeriods, _) {
+                  if (widget.mySubjects.isEmpty) {
+                    // No subjects set
+                    return Container(
+                      color: Colors.red[300],
+                      // Also makes whole area draggable
+                      child: const Center(
+                        child: Text("Set your subjects in the settings"),
+                      ),
+                    );
+                  }
                   if (selectedPeriods.isEmpty) {
                     if (widget.timetable.isEmpty) {
                       // Got no date from the API
