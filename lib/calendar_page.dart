@@ -20,10 +20,15 @@ class _CalendarPageState extends State<CalendarPage> {
 
   bool hasLoginData() {
     SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-    return prefs.containsKey('serverURL') &&
-        prefs.containsKey('school') &&
-        prefs.containsKey('username') &&
-        prefs.containsKey('password');
+    bool notNull = prefs.getString('serverURL') != null &&
+        prefs.getString('school') != null &&
+        prefs.getString('username') != null &&
+        prefs.getString('password') != null;
+    bool notEmpty = prefs.getString('serverURL') != '' &&
+        prefs.getString('school') != '' &&
+        prefs.getString('username') != '' &&
+        prefs.getString('password') != '';
+    return notNull && notEmpty;
   }
 
   Future<void> _doAPICalls() async {
@@ -73,34 +78,28 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     if (!hasLoginData()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your login data in the settings'),
-        ),
-      );
       return const Center(
         child: Text('No login data found'),
-
       );
     } else {
       return FutureBuilder(
-      future: _doAPICalls(),
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Calendar(
-            untisSession: untisSession,
-            schoolYear: schoolYear,
-            timetable: timetable,
-            mySubjects: mySubjects,
-            mySubjectColors: mySubjectColors,
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
-    );
+        future: _doAPICalls(),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Calendar(
+              untisSession: untisSession,
+              schoolYear: schoolYear,
+              timetable: timetable,
+              mySubjects: mySubjects,
+              mySubjectColors: mySubjectColors,
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      );
     }
   }
 }

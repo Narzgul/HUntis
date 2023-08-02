@@ -18,11 +18,16 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   bool hasLoginData() {
-    var prefs = GetIt.instance<SharedPreferences>();
-    return prefs.containsKey('serverURL') &&
-        prefs.containsKey('school') &&
-        prefs.containsKey('username') &&
-        prefs.containsKey('password');
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    bool notNull = prefs.getString('serverURL') != null &&
+        prefs.getString('school') != null &&
+        prefs.getString('username') != null &&
+        prefs.getString('password') != null;
+    bool notEmpty = prefs.getString('serverURL') != '' &&
+        prefs.getString('school') != '' &&
+        prefs.getString('username') != '' &&
+        prefs.getString('password') != '';
+    return notNull && notEmpty;
   }
 
   Future<void> _initPrefs() async {
@@ -60,17 +65,12 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (!hasLoginData()) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please enter your login data in the settings'),
-              ),
-            );
             return MaterialApp(
               title: 'HUntis',
               navigatorKey: navigatorKey,
               home: const AppScaffold(
                 body: Settings(),
-                title: 'Settings',
+                title: 'Enter Login Data',
               ),
             );
           } else {
