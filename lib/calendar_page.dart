@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/calendar.dart';
+import 'package:huntis/components/login_button.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,9 +35,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _doAPICalls() async {
     GetIt getIt = GetIt.instance;
     untisSession = getIt<Session>();
-    if (!untisSession.isLoggedIn) {
-      await untisSession.login();
-    }
+    await untisSession.login();
 
     // Get latest school year
     var allSchoolYears = await untisSession.getSchoolyears();
@@ -77,9 +76,23 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    GetIt getIt = GetIt.instance;
     if (!hasLoginData()) {
       return const Center(
         child: Text('No login data found'),
+      );
+    } else if (!getIt.isRegistered<Session>() || !getIt<Session>().isLoggedIn) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('You are not logged in'),
+          LoginButton(context: context),
+          ElevatedButton(
+            onPressed: () => setState(() {}),
+            child: const Text('Reload'),
+          ),
+        ],
       );
     } else {
       return FutureBuilder(

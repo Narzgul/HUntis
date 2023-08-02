@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/components/input_dialog_setting.dart';
+import 'package:huntis/components/login_button.dart';
 import 'package:huntis/components/subject_color_list.dart';
 import 'package:huntis/components/selector_opener_tile.dart';
 import 'package:huntis/components/subject_list.dart';
@@ -78,6 +79,8 @@ class _SettingsState extends State<Settings> {
             _saveSettings();
           },
         ),
+        LoginButton(context: context),
+        const Divider(),
         const SelectorOpenerTile(title: 'Subjects', selector: SubjectList()),
         const SelectorOpenerTile(title: 'Colors', selector: SubjectColorList()),
       ],

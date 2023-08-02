@@ -98,6 +98,10 @@ class Session {
     LinkedHashMap<String, dynamic> responseBody = jsonDecode(response.body);
 
     if (response.statusCode != 200 || responseBody.containsKey("error")) {
+      if (responseBody["error"]["code"] == -8504) {
+        // Bad credentials
+        return responseBody;
+      }
       showDialog(
         context: navigatorKey.currentContext!,
         builder: (BuildContext context) {
@@ -136,9 +140,18 @@ class Session {
     return postBody;
   }
 
-  Future<void> login() async {
+  Future<int> login() async {
     var result = await _request(_postify("authenticate",
         {"user": username, "password": _password, "client": userAgent}));
+
+    if (result.containsKey("error")) {
+      if (result["error"]["code"] == -8504) {
+        // Bad credentials
+        return 401;
+      }
+      return 400;
+    }
+
     _sessionId = result["sessionId"] as String;
     if (result.containsKey("personId")) {
       userId = IdProvider._(
@@ -154,6 +167,7 @@ class Session {
     }
 
     isLoggedIn = true;
+    return 200;
   }
 
   bool _isSamePeriod(Period period1, Period period2) {
