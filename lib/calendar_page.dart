@@ -82,17 +82,18 @@ class _CalendarPageState extends State<CalendarPage> {
         child: Text('No login data found'),
       );
     } else if (!getIt.isRegistered<Session>() || !getIt<Session>().isLoggedIn) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text('You are not logged in'),
-          LoginButton(context: context),
-          ElevatedButton(
-            onPressed: () => setState(() {}),
-            child: const Text('Reload'),
-          ),
-        ],
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('You are not logged in'),
+            LoginButton(context: context),
+            ElevatedButton(
+              onPressed: () => setState(() {}),
+              child: const Text('Reload'),
+            ),
+          ],
+        ),
       );
     } else {
       return FutureBuilder(
