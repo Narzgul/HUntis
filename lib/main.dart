@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Future<void> _initSession() async {
+  Future<bool> _initSession() async {
     GetIt getIt = GetIt.instance;
     SharedPreferences prefs = getIt<SharedPreferences>();
     if (!getIt.isRegistered<Session>()) {
@@ -50,7 +50,11 @@ class MyApp extends StatelessWidget {
         ),
       );
     }
-    await getIt<Session>().login();
+    int status = await getIt<Session>().login();
+    if (status != 200) {
+      return Future.error(status);
+    }
+    return true;
   }
 
   @override
@@ -77,7 +81,7 @@ class MyApp extends StatelessWidget {
             return FutureBuilder(
               future: _initSession(),
               builder: (context, AsyncSnapshot<void> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
                   return MaterialApp(
                     title: 'HUntis',
                     navigatorKey: navigatorKey,
@@ -87,8 +91,13 @@ class MyApp extends StatelessWidget {
                     ),
                   );
                 } else if (snapshot.hasError) {
-                  return const Center(
-                    child: Text('Error while initializing Session'),
+                  return MaterialApp(
+                    title: 'HUntis',
+                    navigatorKey: navigatorKey,
+                    home: const AppScaffold(
+                      body: Settings(),
+                      title: 'Bad Login Data',
+                    ),
                   );
                 } else {
                   return const Center(
