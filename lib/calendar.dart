@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
@@ -165,11 +167,37 @@ class _CalendarState extends State<Calendar> {
                   setState(() {
                     _selectedDay =
                         _selectedDay.subtract(const Duration(days: 1));
+
+                    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                    if (prefs.getBool('skipWeekends') ?? false) {
+                      // Skip weekends
+                      while (_selectedDay.weekday == DateTime.saturday ||
+                          _selectedDay.weekday == DateTime.sunday) {
+                        _selectedDay =
+                            _selectedDay.subtract(const Duration(days: 1));
+                      }
+                    }
+                    if (_selectedDay.isBefore(widget.schoolYear.startDate)) {
+                      _selectedDay = widget.schoolYear.startDate;
+                    }
                   });
                 } else if (details.primaryVelocity! < 0) {
                   // Swipe right
                   setState(() {
                     _selectedDay = _selectedDay.add(const Duration(days: 1));
+
+                    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                    if (prefs.getBool('skipWeekends') ?? false) {
+                      // Skip weekends
+                      while (_selectedDay.weekday == DateTime.saturday ||
+                          _selectedDay.weekday == DateTime.sunday) {
+                        _selectedDay =
+                            _selectedDay.add(const Duration(days: 1));
+                      }
+                    }
+                    if (_selectedDay.isAfter(widget.schoolYear.endDate)) {
+                      _selectedDay = widget.schoolYear.endDate;
+                    }
                   });
                 }
                 _focusedDay = _selectedDay;

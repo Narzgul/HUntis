@@ -16,9 +16,9 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   String serverURL = '', school = '', username = '', password = '';
+  SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
   _loadSettings() {
-    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     setState(() {
       serverURL = prefs.getString('serverURL') ?? '';
       school = prefs.getString('school') ?? '';
@@ -28,7 +28,6 @@ class _SettingsState extends State<Settings> {
   }
 
   _saveSettings() {
-    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     setState(() {
       prefs.setString('serverURL', serverURL);
       prefs.setString('school', school);
@@ -83,6 +82,15 @@ class _SettingsState extends State<Settings> {
         const Divider(),
         const SelectorOpenerTile(title: 'Subjects', selector: SubjectList()),
         const SelectorOpenerTile(title: 'Colors', selector: SubjectColorList()),
+        const Divider(),
+        CheckboxListTile(
+          title: const Text('Skip Weekends'),
+          value: prefs.getBool('skipWeekends') ?? false,
+          onChanged: (value) {
+            prefs.setBool('skipWeekends', value ?? false);
+            setState(() {});
+          },
+        ),
       ],
     );
   }
