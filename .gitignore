@@ -12,6 +12,7 @@ migrate_working_dir/
 
 # Custom
 lib/auth/
+promomedia
 
 # IntelliJ related
 *.iml
