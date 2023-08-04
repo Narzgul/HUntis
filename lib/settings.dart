@@ -5,7 +5,9 @@ import 'package:huntis/components/login_button.dart';
 import 'package:huntis/components/subject_color_list.dart';
 import 'package:huntis/components/selector_opener_tile.dart';
 import 'package:huntis/components/subject_list.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -89,6 +91,33 @@ class _SettingsState extends State<Settings> {
           onChanged: (value) {
             prefs.setBool('skipWeekends', value ?? false);
             setState(() {});
+          },
+        ),
+        const Divider(),
+        ListTile(
+          title: const Text('About'),
+          trailing: const Icon(Icons.arrow_forward),
+          onTap: () {
+            PackageInfo.fromPlatform().then((packageInfo) {
+              showAboutDialog(
+                context: context,
+                applicationName: packageInfo.appName,
+                applicationVersion: packageInfo.version,
+                applicationLegalese: '© 2023 by Titouan Guitton',
+                children: [
+                  const Text('This app is not affiliated with Untis GmbH.'),
+                  TextButton(
+                      onPressed: () {
+                        launchUrl(
+                          Uri.parse(
+                            'https://github.com/Narzgul/HUntis/blob/master/privacy_policy.md',
+                          ),
+                        );
+                      },
+                      child: const Text('Privacy Policy')),
+                ],
+              );
+            });
           },
         ),
       ],
