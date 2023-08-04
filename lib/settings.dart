@@ -107,14 +107,15 @@ class _SettingsState extends State<Settings> {
                 children: [
                   const Text('This app is not affiliated with Untis GmbH.'),
                   TextButton(
-                      onPressed: () {
-                        launchUrl(
-                          Uri.parse(
-                            'https://github.com/Narzgul/HUntis/blob/master/privacy_policy.md',
-                          ),
-                        );
-                      },
-                      child: const Text('Privacy Policy')),
+                    onPressed: () {
+                      launchUrl(
+                        Uri.parse(
+                          'https://github.com/Narzgul/HUntis/blob/master/privacy_policy.md',
+                        ),
+                      );
+                    },
+                    child: const Text('Privacy Policy'),
+                  ),
                 ],
               );
             });

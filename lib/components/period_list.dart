@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:huntis/components/period_info.dart';
 
 import '../untis_api.dart';
 
@@ -86,6 +87,18 @@ class PeriodList extends StatelessWidget {
                 ),
               ],
             ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return PeriodInfo(
+                    period: periods[index],
+                    textColor: textColor,
+                    backgroundColor: primaryColor,
+                  );
+                },
+              );
+            },
           ),
         );
       },
