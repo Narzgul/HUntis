@@ -240,7 +240,7 @@ class Session {
         Iterable<Teacher> possibleTeachers =
             allTeachers.where((element) => element.id.id == id);
         if (possibleTeachers.isNotEmpty) {
-          period.teacherName = possibleTeachers.first.surName!;
+          period.teacher = possibleTeachers.first;
           if (possibleTeachers.first.id.id == 80) {
             period.isCancelled = true; // Cancelled Period (EVA) for my school
           }
@@ -255,7 +255,7 @@ class Session {
         Iterable<Room> possibleRooms =
             allRooms.where((element) => element.id.id == id);
         if (possibleRooms.isNotEmpty) {
-          period.roomName = possibleRooms.first.name!;
+          period.room = possibleRooms.first;
         }
       }
     }
@@ -310,8 +310,6 @@ class Session {
       return Period._(
         period["id"] as int,
         'NoName',
-        'NoTeacher',
-        'NoRoom',
         DateTime.parse(
             "${period["date"]} ${period["startTime"].toString().padLeft(4, "0")}"),
         DateTime.parse(
@@ -622,13 +620,14 @@ class Period {
   final List<IdProvider> klassenIds, teacherIds, subjectIds, roomIds;
   bool isCancelled;
   final String? activityType, code, type, lessonText, statflags;
-  String name, teacherName, roomName;
+  String name;
+  Subject? subject;
+  Teacher? teacher;
+  Room? room;
 
   Period._(
     this.id,
     this.name,
-    this.teacherName,
-    this.roomName,
     this.startTime,
     this.endTime,
     this.klassenIds,
@@ -643,11 +642,7 @@ class Period {
     this.statflags,
   );
 
-  void setName(String name) {
-    this.name = name;
-  }
-
-  String getStartEndTime() {
+  String startEndTimeString() {
     return '${DateFormat('HH:mm').format(startTime)} '
         '- ${DateFormat('HH:mm').format(endTime)}';
   }

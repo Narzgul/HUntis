@@ -2,6 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../untis_api.dart';
 
+String teacherInfo(Teacher? teacher) {
+  if (teacher == null) {
+    return 'No teacher';
+  }
+  return '${teacher.title} ${teacher.foreName} ${teacher.surName} (${teacher.shorthand})';
+}
+
+String roomInfo(Room? room) {
+  if (room == null) {
+    return 'No room';
+  }
+  return '${room.longName} (${room.name})';
+}
+
 class PeriodInfo extends SimpleDialog {
   final Period period;
 
@@ -36,7 +50,7 @@ class PeriodInfo extends SimpleDialog {
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
-                period.teacherName,
+                teacherInfo(period.teacher),
                 style: TextStyle(color: textColor),
               ),
             ),
@@ -46,7 +60,7 @@ class PeriodInfo extends SimpleDialog {
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
-                period.roomName,
+                roomInfo(period.room),
                 style: TextStyle(color: textColor),
               ),
             ),
@@ -56,7 +70,7 @@ class PeriodInfo extends SimpleDialog {
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
-                period.getStartEndTime(),
+                period.startEndTimeString(),
                 style: TextStyle(color: textColor),
               ),
             ),

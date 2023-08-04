@@ -62,7 +62,7 @@ class PeriodList extends StatelessWidget {
                     ),
                   )
                 : Text(periods[index].name, style: TextStyle(color: textColor)),
-            subtitle: Text(periods[index].getStartEndTime(),
+            subtitle: Text(periods[index].startEndTimeString(),
                 style: TextStyle(color: textColor)),
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -77,12 +77,12 @@ class PeriodList extends StatelessWidget {
                         ),
                       )
                     : Text(
-                        periods[index].teacherName,
+                        periods[index].teacher?.surName ?? '?',
                         style: TextStyle(color: textColor),
                       ),
                 const Spacer(),
                 Text(
-                  periods[index].roomName,
+                  periods[index].room?.name ?? '?',
                   style: TextStyle(color: textColor),
                 ),
               ],
