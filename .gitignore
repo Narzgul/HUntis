@@ -13,6 +13,7 @@ migrate_working_dir/
 # Custom
 lib/auth/
 promomedia
+android/key.properties
 
 # IntelliJ related
 *.iml
