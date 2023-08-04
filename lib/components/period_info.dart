@@ -6,6 +6,9 @@ String teacherInfo(Teacher? teacher) {
   if (teacher == null) {
     return 'No teacher';
   }
+  if (teacher.title == null || teacher.title == '') {
+    return '${teacher.foreName} ${teacher.surName} (${teacher.shorthand})';
+  }
   return '${teacher.title} ${teacher.foreName} ${teacher.surName} (${teacher.shorthand})';
 }
 
