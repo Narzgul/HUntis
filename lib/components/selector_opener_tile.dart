@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class SelectorOpenerTile extends StatefulWidget {
   final Widget selector;
   final String title;
+  final Icon icon;
 
   const SelectorOpenerTile(
-      {Key? key, required this.selector, required this.title})
+      {Key? key, required this.selector, required this.title, required this.icon})
       : super(key: key);
 
   @override
@@ -16,6 +17,7 @@ class _SelectorOpenerTileState extends State<SelectorOpenerTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: widget.icon,
       title: Text(widget.title),
       trailing: const Icon(Icons.arrow_forward),
       onTap: () {

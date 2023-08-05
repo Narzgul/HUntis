@@ -82,10 +82,19 @@ class _SettingsState extends State<Settings> {
         ),
         LoginButton(context: context),
         const Divider(),
-        const SelectorOpenerTile(title: 'Subjects', selector: SubjectList()),
-        const SelectorOpenerTile(title: 'Colors', selector: SubjectColorList()),
+        const SelectorOpenerTile(
+          title: 'Subjects',
+          selector: SubjectList(),
+          icon: Icon(Icons.book),
+        ),
+        const SelectorOpenerTile(
+          title: 'Colors',
+          selector: SubjectColorList(),
+          icon: Icon(Icons.palette),
+        ),
         const Divider(),
         CheckboxListTile(
+          secondary: const Icon(Icons.date_range),
           title: const Text('Skip Weekends'),
           value: prefs.getBool('skipWeekends') ?? false,
           onChanged: (value) {
@@ -95,6 +104,7 @@ class _SettingsState extends State<Settings> {
         ),
         const Divider(),
         ListTile(
+          leading: const Icon(Icons.info),
           title: const Text('About'),
           trailing: const Icon(Icons.arrow_forward),
           onTap: () {

@@ -38,6 +38,10 @@ class PeriodInfo extends SimpleDialog {
           ),
           children: [
             ListTile(
+              leading: Icon(
+                Icons.book,
+                color: textColor,
+              ),
               title: Text(
                 'Subject',
                 style: TextStyle(color: textColor),
@@ -48,6 +52,10 @@ class PeriodInfo extends SimpleDialog {
               ),
             ),
             ListTile(
+              leading: Icon(
+                Icons.person,
+                color: textColor,
+              ),
               title: Text(
                 'Teacher',
                 style: TextStyle(color: textColor),
@@ -58,6 +66,10 @@ class PeriodInfo extends SimpleDialog {
               ),
             ),
             ListTile(
+              leading: Icon(
+                Icons.room,
+                color: textColor,
+              ),
               title: Text(
                 'Room',
                 style: TextStyle(color: textColor),
@@ -68,6 +80,10 @@ class PeriodInfo extends SimpleDialog {
               ),
             ),
             ListTile(
+              leading: Icon(
+                Icons.access_time,
+                color: textColor,
+              ),
               title: Text(
                 'Time',
                 style: TextStyle(color: textColor),
