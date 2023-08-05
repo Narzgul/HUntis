@@ -19,15 +19,23 @@ String roomInfo(Room? room) {
   return '${room.longName} (${room.name})';
 }
 
+String subjectInfo(Period? period, Map<String, String> mySubjectNames) {
+  if (period == null) {
+    return 'No subject';
+  }
+  return '${mySubjectNames[period.name] ?? period.name} (${period.name})';
+}
+
 class PeriodInfo extends SimpleDialog {
   final Period period;
 
-  PeriodInfo(
-      {super.key,
-      required this.period,
-      required Color textColor,
-      required Color backgroundColor})
-      : super(
+  PeriodInfo({
+    super.key,
+    required this.period,
+    required Color textColor,
+    required Color backgroundColor,
+    required Map<String, String> mySubjectNames,
+  }) : super(
           title: Text(
             'Info',
             style: TextStyle(color: textColor),
@@ -47,7 +55,7 @@ class PeriodInfo extends SimpleDialog {
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
-                period.name,
+                subjectInfo(period, mySubjectNames),
                 style: TextStyle(color: textColor),
               ),
             ),

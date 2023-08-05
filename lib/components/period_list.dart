@@ -6,11 +6,13 @@ import '../untis_api.dart';
 class PeriodList extends StatelessWidget {
   final List<Period> periods;
   final Map<String, Color> mySubjectColors;
+  final Map<String, String> mySubjectNames;
 
   const PeriodList({
     Key? key,
     required this.periods,
     required this.mySubjectColors,
+    required this.mySubjectNames,
   }) : super(key: key);
 
   Color _getBestTextColor(Color background) {
@@ -54,14 +56,17 @@ class PeriodList extends StatelessWidget {
           child: ListTile(
             title: periods[index].isCancelled
                 ? Text(
-                    periods[index].name,
+                    mySubjectNames[periods[index].name] ?? periods[index].name,
                     style: TextStyle(
                       decoration: TextDecoration.lineThrough,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
                   )
-                : Text(periods[index].name, style: TextStyle(color: textColor)),
+                : Text(
+                    mySubjectNames[periods[index].name] ?? periods[index].name,
+                    style: TextStyle(color: textColor),
+                  ),
             subtitle: Text(periods[index].startEndTimeString(),
                 style: TextStyle(color: textColor)),
             trailing: Column(
@@ -95,6 +100,7 @@ class PeriodList extends StatelessWidget {
                     period: periods[index],
                     textColor: textColor,
                     backgroundColor: primaryColor,
+                    mySubjectNames: mySubjectNames,
                   );
                 },
               );

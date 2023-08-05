@@ -5,6 +5,7 @@ import 'package:huntis/components/login_button.dart';
 import 'package:huntis/components/subject_color_list.dart';
 import 'package:huntis/components/selector_opener_tile.dart';
 import 'package:huntis/components/subject_list.dart';
+import 'package:huntis/components/subject_name_list.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -86,6 +87,11 @@ class _SettingsState extends State<Settings> {
           title: 'Subjects',
           selector: SubjectList(),
           icon: Icon(Icons.book),
+        ),
+        const SelectorOpenerTile(
+          title: 'Subject Names',
+          selector: SubjectNameList(),
+          icon: Icon(Icons.abc),
         ),
         const SelectorOpenerTile(
           title: 'Colors',

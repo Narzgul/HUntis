@@ -18,6 +18,7 @@ class _CalendarPageState extends State<CalendarPage> {
   late List<Period> timetable;
   late List<String> mySubjects;
   late Map<String, Color> mySubjectColors;
+  late Map<String, String> mySubjectNames;
 
   bool hasLoginData() {
     SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -56,6 +57,7 @@ class _CalendarPageState extends State<CalendarPage> {
         .toList();
 
     mySubjectColors = _getSubjectColors();
+    mySubjectNames = _getSubjectNames();
   }
 
   Map<String, Color> _getSubjectColors() {
@@ -66,6 +68,16 @@ class _CalendarPageState extends State<CalendarPage> {
         e.split(':')[0]: Color(int.parse(e.split(':')[1], radix: 16))
     };
     return mySubjectColors;
+  }
+
+  Map<String, String> _getSubjectNames() {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    List<String>? names = prefs.getStringList('mySubjectNames');
+    Map<String, String> mySubjectNames = {
+      for (var e in names ?? [])
+        e.split(':')[0]: e.split(':')[1]
+    };
+    return mySubjectNames;
   }
 
   List<String> _getMySubjects() {
@@ -106,6 +118,7 @@ class _CalendarPageState extends State<CalendarPage> {
               timetable: timetable,
               mySubjects: mySubjects,
               mySubjectColors: mySubjectColors,
+              mySubjectNames: mySubjectNames,
             );
           } else {
             return const Center(

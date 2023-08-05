@@ -11,6 +11,7 @@ class Calendar extends StatefulWidget {
   final List<Period> timetable;
   final List<String> mySubjects;
   final Map<String, Color> mySubjectColors;
+  final Map<String, String> mySubjectNames;
 
   const Calendar({
     Key? key,
@@ -19,6 +20,7 @@ class Calendar extends StatefulWidget {
     required this.timetable,
     required this.mySubjects,
     required this.mySubjectColors,
+    required this.mySubjectNames,
   }) : super(key: key);
 
   @override
@@ -242,6 +244,7 @@ class _CalendarState extends State<Calendar> {
                     return PeriodList(
                       periods: selectedPeriods,
                       mySubjectColors: widget.mySubjectColors,
+                      mySubjectNames: widget.mySubjectNames,
                     );
                   }
                 },
