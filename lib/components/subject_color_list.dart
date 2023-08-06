@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get_it/get_it.dart';
@@ -57,7 +58,7 @@ class _SubjectColorListState extends State<SubjectColorList> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Text('Pick a color!'),
+                  title: Text('settings-page.pick-color'.tr()),
                   content: SingleChildScrollView(
                     child: ColorPicker(
                       pickerColor: element.value,
@@ -69,7 +70,7 @@ class _SubjectColorListState extends State<SubjectColorList> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: const Text('Save'),
+                      child: Text('save'.tr()),
                       onPressed: () {
                         Navigator.of(context).pop(element.value);
                       },

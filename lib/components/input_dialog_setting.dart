@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class InputDialogSetting extends StatelessWidget {
@@ -28,7 +29,7 @@ class InputDialogSetting extends StatelessWidget {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Enter your $title'),
+              title: Text(title),
               content: TextField(
                 controller: _textController,
                 decoration: InputDecoration(hintText: hintText),
@@ -39,14 +40,14 @@ class InputDialogSetting extends StatelessWidget {
                     onCancel?.call();
                     Navigator.pop(context);
                   },
-                  child: const Text('Cancel'),
+                  child: Text('cancel'.tr()),
                 ),
                 TextButton(
                   onPressed: () {
                     onSubmit(_textController.text);
                     Navigator.pop(context);
                   },
-                  child: const Text('Save'),
+                  child: Text('save'.tr()),
                 ),
               ],
             );

@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/components/input_dialog_setting.dart';
+import 'package:huntis/components/language_list.dart';
 import 'package:huntis/components/login_button.dart';
 import 'package:huntis/components/subject_color_list.dart';
 import 'package:huntis/components/selector_opener_tile.dart';
@@ -46,7 +48,7 @@ class _SettingsState extends State<Settings> {
     return ListView(
       children: [
         InputDialogSetting(
-          title: 'Server URL',
+          title: 'settings-page.server-url'.tr(),
           lastValue: serverURL,
           hintText: 'ajax.webuntis.com',
           onSubmit: (String serverURL) {
@@ -55,7 +57,7 @@ class _SettingsState extends State<Settings> {
           },
         ),
         InputDialogSetting(
-          title: 'School',
+          title: 'settings-page.school'.tr(),
           lastValue: school,
           hintText: 'lindengym-gummersbach',
           onSubmit: (String school) {
@@ -64,7 +66,7 @@ class _SettingsState extends State<Settings> {
           },
         ),
         InputDialogSetting(
-          title: 'Username',
+          title: 'settings-page.username'.tr(),
           lastValue: username,
           hintText: 'LastnameFirstname',
           onSubmit: (String username) {
@@ -73,7 +75,7 @@ class _SettingsState extends State<Settings> {
           },
         ),
         InputDialogSetting(
-          title: 'Password',
+          title: 'settings-page.password'.tr(),
           lastValue: password.replaceAll(RegExp('.'), '*'), // Censor password
           hintText: '',
           onSubmit: (String password) {
@@ -83,35 +85,40 @@ class _SettingsState extends State<Settings> {
         ),
         LoginButton(context: context),
         const Divider(),
-        const SelectorOpenerTile(
-          title: 'Subjects',
-          selector: SubjectList(),
-          icon: Icon(Icons.book),
+        SelectorOpenerTile(
+          title: 'settings-page.subjects'.tr(),
+          selector: const SubjectList(),
+          icon: const Icon(Icons.book),
         ),
-        const SelectorOpenerTile(
-          title: 'Subject Names',
-          selector: SubjectNameList(),
-          icon: Icon(Icons.abc),
+        SelectorOpenerTile(
+          title: 'settings-page.subject-names'.tr(),
+          selector: const SubjectNameList(),
+          icon: const Icon(Icons.abc),
         ),
-        const SelectorOpenerTile(
-          title: 'Colors',
-          selector: SubjectColorList(),
-          icon: Icon(Icons.palette),
+        SelectorOpenerTile(
+          title: 'settings-page.colors'.tr(),
+          selector: const SubjectColorList(),
+          icon: const Icon(Icons.palette),
         ),
         const Divider(),
         CheckboxListTile(
           secondary: const Icon(Icons.date_range),
-          title: const Text('Skip Weekends'),
+          title: Text('settings-page.skip-weekends'.tr()),
           value: prefs.getBool('skipWeekends') ?? false,
           onChanged: (value) {
             prefs.setBool('skipWeekends', value ?? false);
             setState(() {});
           },
         ),
+        SelectorOpenerTile(
+          selector: const LanguageList(),
+          title: 'settings-page.language'.tr(),
+          icon: const Icon(Icons.language),
+        ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.info),
-          title: const Text('About'),
+          title: Text('settings-page.about'.tr()),
           trailing: const Icon(Icons.arrow_forward),
           onTap: () {
             PackageInfo.fromPlatform().then((packageInfo) {

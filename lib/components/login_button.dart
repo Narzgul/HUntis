@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,21 +34,21 @@ class LoginButton extends ElevatedButton {
               switch (status) {
                 case 401:
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Bad credentials'),
+                    SnackBar(
+                      content: Text('messages.bad-login-data'.tr()),
                     ),
                   );
                   break;
                 case 200:
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Login successful'),
+                    SnackBar(
+                      content: Text('messages.login-successful'.tr()),
                     ),
                   );
                   break;
               }
             }
           },
-          child: const Text('Login'),
+          child: Text('settings-page.login'.tr()),
         );
 }

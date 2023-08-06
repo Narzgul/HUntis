@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:huntis/components/nav_drawer.dart';
 
@@ -19,7 +20,7 @@ class AppScaffold extends StatelessWidget{
       home: Scaffold(
         drawer: const NavDrawer(),
         appBar: AppBar(
-          title: Text(title),
+          title: Text(title.tr()),
         ),
         body: body,
       ),

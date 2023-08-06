@@ -1,0 +1,48 @@
+{
+  "calendar": "Calendar",
+  "subject": "Subject",
+  "teacher": "Teacher",
+  "save": "Save",
+  "cancel": "Cancel",
+  "exit": "Exit",
+  "reload": "Reload",
+  "calendar-page": {
+    "week": "Week",
+    "two-weeks": "Two Weeks",
+    "month": "Month",
+    "info": "Info",
+    "room": "Room",
+    "time": "Time",
+    "cancelled": "Cancelled"
+  },
+  "settings": "Settings",
+  "settings-page": {
+    "server-url": "Server URL",
+    "school": "School",
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "select-your": "Select your {}",
+    "pick-color": "Pick a color",
+    "subjects": "Subjects",
+    "subject-names": "Subject Names",
+    "colors": "Colors",
+    "skip-weekends": "Skip Weekends",
+    "language": "Language",
+    "about": "About"
+  },
+  "messages": {
+    "login-successful": "Login successful",
+    "not-logged-in": "Not logged in",
+    "bad-login-data": "Bad login data",
+    "missing-login-data": "Missing login data",
+    "no-lessons": "Found no lessons for this day",
+    "set-subjects": "Set your Subjects in the Settings",
+    "no-api-data": "Got no data from the API",
+    "period-info": {
+      "no-teacher": "No teacher",
+      "no-room": "No room",
+      "no-subject": "No subject"
+    }
+  }
+}

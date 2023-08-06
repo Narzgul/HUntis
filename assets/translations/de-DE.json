@@ -1,0 +1,48 @@
+{
+  "calendar": "Kalender",
+  "subject": "Fach",
+  "teacher": "Lehrer",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "exit": "Verlassen",
+  "reload": "Neu laden",
+  "calendar-page": {
+    "week": "Woche",
+    "two-weeks": "Zwei Wochen",
+    "month": "Monat",
+    "info": "Info",
+    "room": "Raum",
+    "time": "Uhrzeit",
+    "cancelled": "Entfällt"
+  },
+  "settings": "Einstellungen",
+  "settings-page": {
+    "server-url": "Server-URL",
+    "school": "Schule",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "login": "Anmelden",
+    "select-your": "Wähl deine {}",
+    "pick-color": "Wähle eine Farbe",
+    "subjects": "Fächer",
+    "subject-names": "Fächer Namen",
+    "colors": "Farben",
+    "skip-weekends": "Wochenenden überspringen",
+    "language": "Sprache",
+    "about": "Über"
+  },
+  "messages": {
+    "login-successful": "Erfolgreich angemeldet",
+    "not-logged-in": "Nicht angemeldet",
+    "bad-login-data": "Falsche Anmeldedaten",
+    "missing-login-data": "Fehlende Anmeldedaten",
+    "no-lessons": "Keine Stunden für diesen Tag gefunden",
+    "set-subjects": "Wähle deine Fächer in den Einstellungen",
+    "no-api-data": "Keine Daten von der API bekommen",
+    "period-info": {
+      "no-teacher": "Kein Lehrer",
+      "no-room": "Kein Raum",
+      "no-subject": "Kein Fach"
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:huntis/calendar_page.dart';
 import 'package:huntis/components/app_scaffold.dart';
@@ -24,7 +25,7 @@ class NavDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Calendar'),
+            title: Text('calendar'.tr()),
             leading: const Icon(Icons.calendar_month),
             onTap: () {
               Navigator.push(
@@ -32,7 +33,7 @@ class NavDrawer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => const AppScaffold(
                     body: CalendarPage(),
-                    title: 'Calendar',
+                    title: 'calendar',
                   ),
                 ),
               );
@@ -40,7 +41,7 @@ class NavDrawer extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            title: const Text('Settings'),
+            title: Text('settings'.tr()),
             leading: const Icon(Icons.settings),
             onTap: () {
               Navigator.push(
@@ -48,7 +49,7 @@ class NavDrawer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => const AppScaffold(
                     body: Settings(),
-                    title: 'Settings',
+                    title: 'settings',
                   ),
                 ),
               );

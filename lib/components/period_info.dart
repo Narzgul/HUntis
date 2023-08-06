@@ -1,10 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../untis_api.dart';
 
 String teacherInfo(Teacher? teacher) {
   if (teacher == null) {
-    return 'No teacher';
+    return 'messages.period-info.no-teacher'.tr();
   }
   if (teacher.title == null || teacher.title == '') {
     return '${teacher.foreName} ${teacher.surName} (${teacher.shorthand})';
@@ -14,14 +15,14 @@ String teacherInfo(Teacher? teacher) {
 
 String roomInfo(Room? room) {
   if (room == null) {
-    return 'No room';
+    return 'messages.period-info.no-room'.tr();
   }
   return '${room.longName} (${room.name})';
 }
 
 String subjectInfo(Period? period, Map<String, String> mySubjectNames) {
   if (period == null) {
-    return 'No subject';
+    return 'messages.period-info.no-subject'.tr();
   }
   return '${mySubjectNames[period.name] ?? period.name} (${period.name})';
 }
@@ -37,7 +38,7 @@ class PeriodInfo extends SimpleDialog {
     required Map<String, String> mySubjectNames,
   }) : super(
           title: Text(
-            'Info',
+            'calendar-page.info'.tr(),
             style: TextStyle(color: textColor),
           ),
           backgroundColor: backgroundColor,
@@ -51,7 +52,7 @@ class PeriodInfo extends SimpleDialog {
                 color: textColor,
               ),
               title: Text(
-                'Subject',
+                'subject'.tr(),
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
@@ -65,7 +66,7 @@ class PeriodInfo extends SimpleDialog {
                 color: textColor,
               ),
               title: Text(
-                'Teacher',
+                'teacher'.tr(),
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
@@ -79,7 +80,7 @@ class PeriodInfo extends SimpleDialog {
                 color: textColor,
               ),
               title: Text(
-                'Room',
+                'calendar-page.room'.tr(),
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(
@@ -93,7 +94,7 @@ class PeriodInfo extends SimpleDialog {
                 color: textColor,
               ),
               title: Text(
-                'Time',
+                'calendar-page.time'.tr(),
                 style: TextStyle(color: textColor),
               ),
               subtitle: Text(

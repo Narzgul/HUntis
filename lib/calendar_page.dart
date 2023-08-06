@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/calendar.dart';
@@ -90,19 +91,19 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     GetIt getIt = GetIt.instance;
     if (!hasLoginData()) {
-      return const Center(
-        child: Text('No login data found'),
+      return Center(
+        child: Text('missing-login-data'.tr()),
       );
     } else if (!getIt.isRegistered<Session>() || !getIt<Session>().isLoggedIn) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('You are not logged in'),
+            Text('not-logged-in'.tr()),
             LoginButton(context: context),
             ElevatedButton(
               onPressed: () => setState(() {}),
-              child: const Text('Reload'),
+              child: Text('reload'.tr()),
             ),
           ],
         ),

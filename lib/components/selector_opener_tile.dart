@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SelectorOpenerTile extends StatefulWidget {
@@ -30,7 +31,7 @@ class _SelectorOpenerTileState extends State<SelectorOpenerTile> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Select your ${widget.title}',
+                      'settings-page.select-your'.tr(args: [widget.title]),
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
@@ -43,7 +44,7 @@ class _SelectorOpenerTileState extends State<SelectorOpenerTile> {
                     child: TextButton(
                       onPressed: () =>
                           Navigator.of(context).pop(), // Exit dialog
-                      child: const Text('Exit'),
+                      child: Text('exit'.tr()),
                     ),
                   ),
                 ],

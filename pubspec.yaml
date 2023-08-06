@@ -43,6 +43,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   package_info_plus: ^4.1.0
   url_launcher: ^6.1.12
+  easy_localization: ^3.0.2
+  flutter_localized_locales: ^2.0.4
 
 dev_dependencies:
   flutter_launcher_icons:
@@ -80,6 +82,8 @@ flutter_launcher_icons:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/translations/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

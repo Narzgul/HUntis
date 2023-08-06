@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/calendar_page.dart';
 import 'package:huntis/components/app_scaffold.dart';
@@ -11,7 +13,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  runApp(const MyApp());
+  // Needs to be called so that we can await for EasyLocalization.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en', 'US'), Locale('de', 'DE')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('de', 'DE'),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -64,6 +77,9 @@ class MyApp extends StatelessWidget {
       exit(1);
     };
 
+    var localizationsDelegates = context.localizationDelegates;
+    localizationsDelegates.add(const LocaleNamesLocalizationsDelegate());
+
     return FutureBuilder(
       future: _initPrefs(),
       builder: (context, snapshot) {
@@ -72,9 +88,12 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               title: 'HUntis',
               navigatorKey: navigatorKey,
+              localizationsDelegates: localizationsDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
               home: const AppScaffold(
                 body: Settings(),
-                title: 'Enter Login Data',
+                title: 'messages.missing-login-data',
               ),
             );
           } else {
@@ -85,18 +104,24 @@ class MyApp extends StatelessWidget {
                   return MaterialApp(
                     title: 'HUntis',
                     navigatorKey: navigatorKey,
+                    localizationsDelegates: localizationsDelegates,
+                    supportedLocales: context.supportedLocales,
+                    locale: context.locale,
                     home: const AppScaffold(
                       body: CalendarPage(),
-                      title: 'Calendar',
+                      title: 'calendar',
                     ),
                   );
                 } else if (snapshot.hasError) {
                   return MaterialApp(
                     title: 'HUntis',
                     navigatorKey: navigatorKey,
+                    localizationsDelegates: localizationsDelegates,
+                    supportedLocales: context.supportedLocales,
+                    locale: context.locale,
                     home: const AppScaffold(
                       body: Settings(),
-                      title: 'Bad Login Data',
+                      title: 'messages.bad-login-data',
                     ),
                   );
                 } else {

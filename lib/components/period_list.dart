@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:huntis/components/period_info.dart';
 
@@ -75,7 +76,7 @@ class PeriodList extends StatelessWidget {
               children: [
                 periods[index].isCancelled
                     ? Text(
-                        "Cancelled",
+                        "calendar-page.cancelled".tr(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: textColor,

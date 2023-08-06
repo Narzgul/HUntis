@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:huntis/components/period_list.dart';
@@ -130,10 +131,10 @@ class _CalendarState extends State<Calendar> {
             lastDay: widget.schoolYear.endDate,
             startingDayOfWeek: StartingDayOfWeek.monday,
             calendarFormat: calendarFormat,
-            availableCalendarFormats: const {
-              CalendarFormat.week: 'Week',
-              CalendarFormat.twoWeeks: 'Two Weeks',
-              CalendarFormat.month: 'Month',
+            availableCalendarFormats: {
+              CalendarFormat.week: 'calendar-page.week'.tr(),
+              CalendarFormat.twoWeeks: 'calendar-page.two-weeks'.tr(),
+              CalendarFormat.month: 'calendar-page.month'.tr(),
             },
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
@@ -214,8 +215,8 @@ class _CalendarState extends State<Calendar> {
                     return Container(
                       color: Colors.red[300],
                       // Also makes whole area draggable
-                      child: const Center(
-                        child: Text("Set your subjects in the settings"),
+                      child: Center(
+                        child: Text("messages.set-subjects".tr()),
                       ),
                     );
                   }
@@ -225,8 +226,8 @@ class _CalendarState extends State<Calendar> {
                       return Container(
                         color: Colors.red[300],
                         // Also makes whole area draggable
-                        child: const Center(
-                          child: Text("Got no data from the API"),
+                        child: Center(
+                          child: Text("messages.no-api-data".tr()),
                         ),
                       );
                     } else {
@@ -234,8 +235,8 @@ class _CalendarState extends State<Calendar> {
                       return Container(
                         color: Colors.grey[300],
                         // Also makes whole area draggable
-                        child: const Center(
-                          child: Text("No lessons found for this day"),
+                        child: Center(
+                          child: Text("messages.no-lessons".tr()),
                         ),
                       );
                     }
