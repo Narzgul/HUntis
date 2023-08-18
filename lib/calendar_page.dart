@@ -44,11 +44,25 @@ class _CalendarPageState extends State<CalendarPage> {
     allSchoolYears.sort((a, b) => a.endDate.compareTo(b.endDate));
     schoolYear = allSchoolYears.last;
 
-    timetable = await untisSession.getTimetable(
-      untisSession.userId!,
-      startDate: schoolYear.startDate,
-      endDate: schoolYear.endDate,
-      useCache: true,
+    // Set startDate and endDate
+    late DateTime startDate, endDate;
+    if (DateTime.now()
+        .add(const Duration(days: 30))
+        .isAfter(schoolYear.endDate)) {
+      // If today is after or within the last 30 days of the school year
+      startDate = schoolYear.endDate.subtract(const Duration(days: 30));
+      endDate = schoolYear.endDate;
+    } else if (DateTime.now().isBefore(schoolYear.startDate)) {
+      // If today is before or within the first 30 days of the school year
+      startDate = schoolYear.startDate;
+      endDate = schoolYear.startDate.add(const Duration(days: 30));
+    } else {
+      startDate = DateTime.now().subtract(const Duration(days: 15));
+      endDate = DateTime.now().add(const Duration(days: 15));
+    }
+    timetable = await untisSession.getPeriods(
+      startDate: startDate,
+      endDate: endDate,
     );
 
     mySubjects = _getMySubjects();
