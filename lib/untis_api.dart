@@ -187,11 +187,22 @@ class Session {
     return isSame;
   }
 
+  /// Checks if two DateTime objects are the same day.
+  /// Returns `false` if either of them is null.
+  bool isSameDay(DateTime? a, DateTime? b) {
+    if (a == null || b == null) {
+      return false;
+    }
+
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   Future<List<Period>> getPeriods(
       {required DateTime startDate, DateTime? endDate}) async {
     endDate ??= startDate; // Default to start
     print('Getting periods from $startDate to $endDate');
     if (_timetableStart == null || _timetableEnd == null) {
+      print('Getting new from $startDate to $endDate');
       _timetableStart = startDate;
       _timetableEnd = endDate;
 
@@ -203,19 +214,25 @@ class Session {
     }
 
     if (startDate.isBefore(_timetableStart!)) {
-      print('Getting $startDate to ${_timetableStart!}');
+      print('Getting new from $startDate to ${_timetableStart!}');
       if (_timetableStart!.difference(startDate).inDays < 7) {
         _timetableStart = _timetableStart!.subtract(const Duration(days: 7));
+        await getTimetable(
+          userId!,
+          startDate: _timetableStart,
+          endDate: _timetableStart?.add(const Duration(days: 7)),
+        );
+      } else {
+        await getTimetable(
+          userId!,
+          startDate: startDate,
+          endDate: _timetableStart,
+        );
+        _timetableStart = startDate;
       }
-      await getTimetable(
-        userId!,
-        startDate: startDate,
-        endDate: _timetableStart,
-      );
-      _timetableStart = startDate;
     }
     if (endDate.isAfter(_timetableEnd!)) {
-      print('Getting $endDate to ${_timetableEnd!}');
+      print('Getting new from ${_timetableEnd!} to $endDate');
       if (endDate.difference(_timetableEnd!).inDays < 7) {
         _timetableEnd = _timetableEnd!.add(const Duration(days: 7));
         await getTimetable(
@@ -229,15 +246,16 @@ class Session {
           startDate: _timetableEnd,
           endDate: endDate,
         );
+        _timetableEnd = endDate;
       }
-      _timetableEnd = endDate;
     }
-
     return Future.value(
       _timetable
-          .where((element) =>
-              element.startTime.compareTo(startDate) >= 0 &&
-              element.endTime.compareTo(endDate!) <= 0)
+          .where(
+            (element) =>
+                isSameDay(element.startTime, startDate) &&
+                isSameDay(element.endTime, endDate!),
+          )
           .toList(),
     );
   }

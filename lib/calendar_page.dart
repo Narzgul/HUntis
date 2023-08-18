@@ -52,7 +52,7 @@ class _CalendarPageState extends State<CalendarPage> {
       // If today is after or within the last 30 days of the school year
       startDate = schoolYear.endDate.subtract(const Duration(days: 30));
       endDate = schoolYear.endDate;
-    } else if (DateTime.now().isBefore(schoolYear.startDate)) {
+    } else if (DateTime.now().subtract(const Duration(days: 30)).isBefore(schoolYear.startDate)) {
       // If today is before or within the first 30 days of the school year
       startDate = schoolYear.startDate;
       endDate = schoolYear.startDate.add(const Duration(days: 30));

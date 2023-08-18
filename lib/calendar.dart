@@ -65,8 +65,6 @@ class _CalendarState extends State<Calendar> {
         periods.add(period);
       }
     }
-    print(allPeriodsForDay);
-    print(periods);
 
     return periods;
   }
@@ -213,6 +211,7 @@ class _CalendarState extends State<Calendar> {
               child: ValueListenableBuilder<DateTime>(
                 valueListenable: _selectedDayChanged,
                 builder: (context, selectedDay, _) {
+                  // selectedDay is not updated, _selectedDay is (idk why)
                   if (widget.mySubjects.isEmpty) {
                     // No subjects set
                     return Container(
@@ -224,8 +223,9 @@ class _CalendarState extends State<Calendar> {
                     );
                   }
                   return FutureBuilder(
-                    future: _getEventsForDay(selectedDay),
-                    builder: (BuildContext context, AsyncSnapshot<List<Period>> snapshot) {
+                    future: _getEventsForDay(_selectedDay),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Period>> snapshot) {
                       if (snapshot.hasData) {
                         List<Period> selectedPeriods = snapshot.data!;
                         if (selectedPeriods.isEmpty) {
