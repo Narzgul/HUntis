@@ -2,7 +2,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -203,8 +202,8 @@ class Session {
     print('Getting periods from $startDate to $endDate');
     if (_timetableStart == null || _timetableEnd == null) {
       print('Getting new from $startDate to $endDate');
-      _timetableStart = startDate;
-      _timetableEnd = endDate;
+      _timetableStart = startDate.add(endDate.timeZoneOffset);
+      _timetableEnd = endDate.add(endDate.timeZoneOffset);
 
       return getTimetable(
         userId!,
