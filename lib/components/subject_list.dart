@@ -59,8 +59,8 @@ class _SubjectListState extends State<SubjectList> {
     allSchoolYears.sort((a, b) => a.endDate.compareTo(b.endDate));
     Schoolyear schoolYear = allSchoolYears.last;
 
+    // Set startDate and endDate
     late DateTime startDate, endDate;
-
     if (DateTime.now()
         .add(const Duration(days: 30))
         .isAfter(schoolYear.endDate)) {
@@ -76,11 +76,9 @@ class _SubjectListState extends State<SubjectList> {
       endDate = DateTime.now().add(const Duration(days: 15));
     }
 
-    List<Period> timetable = await untisSession.getTimetable(
-      userId!,
+    List<Period> timetable = await untisSession.getPeriods(
       startDate: startDate,
       endDate: endDate,
-      useCache: false,
     );
 
     List<String> relevantSubjects = [];

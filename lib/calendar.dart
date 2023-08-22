@@ -30,6 +30,7 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   late final ValueNotifier<List<Period>> _selectedPeriods;
+  late final ValueNotifier<DateTime> _selectedDayChanged;
   CalendarFormat calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay, _selectedDay;
 
@@ -49,16 +50,18 @@ class _CalendarState extends State<Calendar> {
       _selectedDay = DateTime.now();
     }
 
-    // _selectedPeriods updates when _focusedDay changes
-    _selectedPeriods = ValueNotifier(_getEventsForDay(_focusedDay));
+    // _selectedDayChanged updates when _focusedDay changes
+    _selectedDayChanged = ValueNotifier(_focusedDay);
   }
 
-  List<Period> _getEventsForDay(DateTime day) {
+  Future<List<Period>> _getEventsForDay(DateTime day) async {
     List<Period> periods = [];
 
     // Filter for Subjects on that day
-    for (Period period in widget.timetable) {
-      if (isSameDay(period.startTime, day)) {
+    List<Period> allPeriodsForDay =
+        await widget.untisSession.getPeriods(startDate: day);
+    for (var period in allPeriodsForDay) {
+      if (widget.mySubjects.contains(period.subject?.name)) {
         periods.add(period);
       }
     }
@@ -146,8 +149,6 @@ class _CalendarState extends State<Calendar> {
                   _selectedDay = selectedDay;
                 });
               }
-              // Update timetable
-              _selectedPeriods.value = _getEventsForDay(_selectedDay);
             },
             onFormatChanged: (format) {
               if (calendarFormat != format) {
@@ -171,7 +172,8 @@ class _CalendarState extends State<Calendar> {
                     _selectedDay =
                         _selectedDay.subtract(const Duration(days: 1));
 
-                    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                    SharedPreferences prefs =
+                        GetIt.instance<SharedPreferences>();
                     if (prefs.getBool('skipWeekends') ?? false) {
                       // Skip weekends
                       while (_selectedDay.weekday == DateTime.saturday ||
@@ -189,7 +191,8 @@ class _CalendarState extends State<Calendar> {
                   setState(() {
                     _selectedDay = _selectedDay.add(const Duration(days: 1));
 
-                    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                    SharedPreferences prefs =
+                        GetIt.instance<SharedPreferences>();
                     if (prefs.getBool('skipWeekends') ?? false) {
                       // Skip weekends
                       while (_selectedDay.weekday == DateTime.saturday ||
@@ -204,12 +207,11 @@ class _CalendarState extends State<Calendar> {
                   });
                 }
                 _focusedDay = _selectedDay;
-                _selectedPeriods.value =
-                    _getEventsForDay(_selectedDay); // Update timetable
               },
-              child: ValueListenableBuilder<List<Period>>(
-                valueListenable: _selectedPeriods,
-                builder: (context, selectedPeriods, _) {
+              child: ValueListenableBuilder<DateTime>(
+                valueListenable: _selectedDayChanged,
+                builder: (context, selectedDay, _) {
+                  // selectedDay is not updated, _selectedDay is (idk why)
                   if (widget.mySubjects.isEmpty) {
                     // No subjects set
                     return Container(
@@ -220,34 +222,52 @@ class _CalendarState extends State<Calendar> {
                       ),
                     );
                   }
-                  if (selectedPeriods.isEmpty) {
-                    if (widget.timetable.isEmpty) {
-                      // Got no date from the API
-                      return Container(
-                        color: Colors.red[300],
-                        // Also makes whole area draggable
-                        child: Center(
-                          child: Text("messages.no-api-data".tr()),
-                        ),
-                      );
-                    } else {
-                      // No lessons found for this day
-                      return Container(
-                        color: Colors.grey[300],
-                        // Also makes whole area draggable
-                        child: Center(
-                          child: Text("messages.no-lessons".tr()),
-                        ),
-                      );
-                    }
-                  } else {
-                    // Got lessons for this day
-                    return PeriodList(
-                      periods: selectedPeriods,
-                      mySubjectColors: widget.mySubjectColors,
-                      mySubjectNames: widget.mySubjectNames,
-                    );
-                  }
+                  return FutureBuilder(
+                    future: _getEventsForDay(_selectedDay),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Period>> snapshot) {
+                      if (snapshot.hasData) {
+                        List<Period> selectedPeriods = snapshot.data!;
+                        if (selectedPeriods.isEmpty) {
+                          if (widget.timetable.isEmpty) {
+                            // Got no date from the API
+                            return Container(
+                              color: Colors.red[300],
+                              // Also makes whole area draggable
+                              child: Center(
+                                child: Text("messages.no-api-data".tr()),
+                              ),
+                            );
+                          } else {
+                            // No lessons found for this day
+                            return Container(
+                              color: Colors.grey[300],
+                              // Also makes whole area draggable
+                              child: Center(
+                                child: Text("messages.no-lessons".tr()),
+                              ),
+                            );
+                          }
+                        } else {
+                          // Got lessons for this day
+                          return PeriodList(
+                            periods: selectedPeriods,
+                            mySubjectColors: widget.mySubjectColors,
+                            mySubjectNames: widget.mySubjectNames,
+                          );
+                        }
+                      } else {
+                        // Loading
+                        return Container(
+                          color: Colors.grey[300],
+                          // Also makes whole area draggable
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                    },
+                  );
                 },
               ),
             ),

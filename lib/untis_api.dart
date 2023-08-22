@@ -28,6 +28,7 @@ class Session {
   String? _sessionId;
   IdProvider? userId, userKlasseId;
   List<Period> _timetable = [];
+  DateTime? _timetableStart, _timetableEnd;
   List<DateTime> cachedDays = [];
   bool isLoggedIn = false;
   int maxRetries = 5;
@@ -167,6 +168,7 @@ class Session {
     }
 
     isLoggedIn = true;
+    _timetable = [];
     return 200;
   }
 
@@ -182,6 +184,79 @@ class Session {
       isSame = false;
     }
     return isSame;
+  }
+
+  /// Checks if two DateTime objects are the same day.
+  /// Returns `false` if either of them is null.
+  bool isSameDay(DateTime? a, DateTime? b) {
+    if (a == null || b == null) {
+      return false;
+    }
+
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  Future<List<Period>> getPeriods(
+      {required DateTime startDate, DateTime? endDate}) async {
+    endDate ??= startDate; // Default to start
+    print('Getting periods from $startDate to $endDate');
+    if (_timetableStart == null || _timetableEnd == null) {
+      print('Getting new from $startDate to $endDate');
+      _timetableStart = startDate.add(endDate.timeZoneOffset);
+      _timetableEnd = endDate.add(endDate.timeZoneOffset);
+
+      return getTimetable(
+        userId!,
+        startDate: startDate,
+        endDate: endDate,
+      );
+    }
+
+    if (startDate.isBefore(_timetableStart!)) {
+      print('Getting new from $startDate to ${_timetableStart!}');
+      if (_timetableStart!.difference(startDate).inDays < 7) {
+        _timetableStart = _timetableStart!.subtract(const Duration(days: 7));
+        await getTimetable(
+          userId!,
+          startDate: _timetableStart,
+          endDate: _timetableStart?.add(const Duration(days: 7)),
+        );
+      } else {
+        await getTimetable(
+          userId!,
+          startDate: startDate,
+          endDate: _timetableStart,
+        );
+        _timetableStart = startDate;
+      }
+    }
+    if (endDate.isAfter(_timetableEnd!)) {
+      print('Getting new from ${_timetableEnd!} to $endDate');
+      if (endDate.difference(_timetableEnd!).inDays < 7) {
+        _timetableEnd = _timetableEnd!.add(const Duration(days: 7));
+        await getTimetable(
+          userId!,
+          startDate: _timetableEnd?.subtract(const Duration(days: 7)),
+          endDate: _timetableEnd,
+        );
+      } else {
+        await getTimetable(
+          userId!,
+          startDate: _timetableEnd,
+          endDate: endDate,
+        );
+        _timetableEnd = endDate;
+      }
+    }
+    return Future.value(
+      _timetable
+          .where(
+            (element) =>
+                isSameDay(element.startTime, startDate) &&
+                isSameDay(element.endTime, endDate!),
+          )
+          .toList(),
+    );
   }
 
   Future<List<Period>> getTimetable(
@@ -230,6 +305,8 @@ class Session {
         int id = period.subjectIds[0].id;
         period.name =
             allSubjects.where((element) => element.id.id == id).first.name;
+        period.subject =
+            allSubjects.where((element) => element.id.id == id).first;
       }
     }
     // Search for all corresponding teacher names
@@ -587,7 +664,8 @@ class Session {
   /// For valid values for the [methodeName] and possible [parameters]
   /// visit the official documentation https://untis-sr.ch/wp-content/uploads/2019/11/2018-09-20-WebUntis_JSON_RPC_API.pdf
   Future<dynamic> customRequest(
-      String methodeName, Map<String, Object> parameters, {required }) async {
+      String methodeName, Map<String, Object> parameters,
+      {required}) async {
     return await _request(_postify(methodeName, parameters));
   }
 
@@ -650,8 +728,8 @@ class Period {
   @override
   String toString() => "Period<id:$id, startTime:$startTime, endTime:$endTime, "
       "isCancelled:$isCancelled, klassenIds:$klassenIds, "
-      "teacherIds:$teacherIds, subjectIds:$subjectIds, "
-      "roomIds:$roomIds, activityType:$activityType, "
+      "teacherIds:$teacherIds, teacher:$teacher, subjectIds:$subjectIds,"
+      "subject:$subject, roomIds:$roomIds, activityType:$activityType, "
       "code:$activityType, type:$type, lessonText:$lessonText, "
       "statflags:$statflags>";
 }
