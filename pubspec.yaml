@@ -45,6 +45,7 @@ dependencies:
   url_launcher: ^6.1.12
   easy_localization: ^3.0.2
   flutter_localized_locales: ^2.0.4
+  calendar_view: ^1.0.4
 
 dev_dependencies:
   flutter_launcher_icons:

@@ -1,3 +1,4 @@
+import 'package:calendar_view/calendar_view.dart' as calendar_view;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -5,6 +6,8 @@ import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:table_calendar/src/customization/header_style.dart'
+    as table_cal;
 
 class Calendar extends StatefulWidget {
   final Session untisSession;
@@ -52,6 +55,9 @@ class _CalendarState extends State<Calendar> {
 
     // _selectedDayChanged updates when _focusedDay changes
     _selectedDayChanged = ValueNotifier(_focusedDay);
+    _selectedDayChanged.addListener(() {
+
+    });
   }
 
   Future<List<Period>> _getEventsForDay(DateTime day) async {
@@ -113,7 +119,7 @@ class _CalendarState extends State<Calendar> {
                 color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
-            headerStyle: HeaderStyle(
+            headerStyle: table_cal.HeaderStyle(
               formatButtonShowsNext: false,
               titleTextStyle: TextStyle(
                 fontSize: 17,
@@ -163,113 +169,85 @@ class _CalendarState extends State<Calendar> {
             },
           ),
           Expanded(
-            child: GestureDetector(
-              // Swipe to change day
-              onHorizontalDragEnd: (details) {
-                if (details.primaryVelocity! > 0) {
-                  // Swipe left
-                  setState(() {
-                    _selectedDay =
-                        _selectedDay.subtract(const Duration(days: 1));
-
-                    SharedPreferences prefs =
-                        GetIt.instance<SharedPreferences>();
-                    if (prefs.getBool('skipWeekends') ?? false) {
-                      // Skip weekends
-                      while (_selectedDay.weekday == DateTime.saturday ||
-                          _selectedDay.weekday == DateTime.sunday) {
-                        _selectedDay =
-                            _selectedDay.subtract(const Duration(days: 1));
-                      }
-                    }
-                    if (_selectedDay.isBefore(widget.schoolYear.startDate)) {
-                      _selectedDay = widget.schoolYear.startDate;
-                    }
-                  });
-                } else if (details.primaryVelocity! < 0) {
-                  // Swipe right
-                  setState(() {
-                    _selectedDay = _selectedDay.add(const Duration(days: 1));
-
-                    SharedPreferences prefs =
-                        GetIt.instance<SharedPreferences>();
-                    if (prefs.getBool('skipWeekends') ?? false) {
-                      // Skip weekends
-                      while (_selectedDay.weekday == DateTime.saturday ||
-                          _selectedDay.weekday == DateTime.sunday) {
-                        _selectedDay =
-                            _selectedDay.add(const Duration(days: 1));
-                      }
-                    }
-                    if (_selectedDay.isAfter(widget.schoolYear.endDate)) {
-                      _selectedDay = widget.schoolYear.endDate;
-                    }
-                  });
+            child: ValueListenableBuilder<DateTime>(
+              valueListenable: _selectedDayChanged,
+              builder: (context, selectedDay, _) {
+                // selectedDay is not updated, _selectedDay is (idk why)
+                if (widget.mySubjects.isEmpty) {
+                  // No subjects set
+                  return Container(
+                    color: Colors.red[300],
+                    // Also makes whole area draggable
+                    child: Center(
+                      child: Text("messages.set-subjects".tr()),
+                    ),
+                  );
                 }
-                _focusedDay = _selectedDay;
-              },
-              child: ValueListenableBuilder<DateTime>(
-                valueListenable: _selectedDayChanged,
-                builder: (context, selectedDay, _) {
-                  // selectedDay is not updated, _selectedDay is (idk why)
-                  if (widget.mySubjects.isEmpty) {
-                    // No subjects set
-                    return Container(
-                      color: Colors.red[300],
-                      // Also makes whole area draggable
-                      child: Center(
-                        child: Text("messages.set-subjects".tr()),
-                      ),
-                    );
-                  }
-                  return FutureBuilder(
-                    future: _getEventsForDay(_selectedDay),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<Period>> snapshot) {
-                      if (snapshot.hasData) {
-                        List<Period> selectedPeriods = snapshot.data!;
-                        if (selectedPeriods.isEmpty) {
-                          if (widget.timetable.isEmpty) {
-                            // Got no date from the API
-                            return Container(
-                              color: Colors.red[300],
-                              // Also makes whole area draggable
-                              child: Center(
-                                child: Text("messages.no-api-data".tr()),
-                              ),
-                            );
-                          } else {
-                            // No lessons found for this day
-                            return Container(
-                              color: Colors.grey[300],
-                              // Also makes whole area draggable
-                              child: Center(
-                                child: Text("messages.no-lessons".tr()),
-                              ),
-                            );
-                          }
+                return FutureBuilder(
+                  future: _getEventsForDay(_selectedDay),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Period>> snapshot) {
+                    if (snapshot.hasData) {
+                      List<Period> selectedPeriods = snapshot.data!;
+                      if (selectedPeriods.isEmpty) {
+                        if (widget.timetable.isEmpty) {
+                          // Got no date from the API
+                          return Container(
+                            color: Colors.red[300],
+                            // Also makes whole area draggable
+                            child: Center(
+                              child: Text("messages.no-api-data".tr()),
+                            ),
+                          );
                         } else {
-                          // Got lessons for this day
-                          return PeriodList(
-                            periods: selectedPeriods,
-                            mySubjectColors: widget.mySubjectColors,
-                            mySubjectNames: widget.mySubjectNames,
+                          // No lessons found for this day
+                          return Container(
+                            color: Colors.grey[300],
+                            // Also makes whole area draggable
+                            child: Center(
+                              child: Text("messages.no-lessons".tr()),
+                            ),
                           );
                         }
                       } else {
-                        // Loading
-                        return Container(
-                          color: Colors.grey[300],
-                          // Also makes whole area draggable
-                          child: const Center(
-                            child: CircularProgressIndicator(),
+                        // Got lessons for this day
+                        return calendar_view.CalendarControllerProvider(
+                          controller: calendar_view.EventController(),
+                          child: calendar_view.DayView(
+                            backgroundColor: null,
+                            headerStyle: calendar_view.HeaderStyle(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.5),
+                              ),
+                            ),
+                            onPageChange: (date, page) {
+                              if (!isSameDay(_selectedDay, date)) {
+                                // Call `setState()` when updating the selected day
+                                setState(() {
+                                  _selectedDay = date;
+                                });
+                              }
+                            },
+                            startDuration: const Duration(hours: 7, minutes: 50),
                           ),
                         );
                       }
-                    },
-                  );
-                },
-              ),
+                    } else {
+                      // Loading
+                      return Container(
+                        color: Colors.grey[300],
+                        // Also makes whole area draggable
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
             ),
           ),
         ],
