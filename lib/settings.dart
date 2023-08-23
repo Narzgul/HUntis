@@ -20,6 +20,9 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  static const String _defaultServerURL = 'ajax.webuntis.com';
+  static const String _defaultSchool = 'lindengym-gummersbach';
+
   String serverURL = '', school = '', username = '', password = '';
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
@@ -30,6 +33,16 @@ class _SettingsState extends State<Settings> {
       username = prefs.getString('username') ?? '';
       password = prefs.getString('password') ?? '';
     });
+
+    // If the user has not set the server URL and school, set the default values
+    if (serverURL == '') {
+      serverURL = _defaultServerURL;
+      _saveSettings();
+    }
+    if (school == '') {
+      school = _defaultSchool;
+      _saveSettings();
+    }
   }
 
   _saveSettings() {
