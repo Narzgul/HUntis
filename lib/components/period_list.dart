@@ -1,6 +1,5 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:huntis/components/period_info.dart';
+import 'package:huntis/components/period_tile.dart';
 
 import '../untis_api.dart';
 
@@ -8,12 +7,14 @@ class PeriodList extends StatelessWidget {
   final List<Period> periods;
   final Map<String, Color> mySubjectColors;
   final Map<String, String> mySubjectNames;
+  final Timegrid timegrid;
 
   const PeriodList({
     Key? key,
     required this.periods,
     required this.mySubjectColors,
     required this.mySubjectNames,
+    required this.timegrid,
   }) : super(key: key);
 
   Color _getBestTextColor(Color background) {
@@ -44,69 +45,12 @@ class PeriodList extends StatelessWidget {
         }
         Color textColor = _getBestTextColor(primaryColor);
 
-        return Container(
-          margin: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 4.0,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(12.0),
-            color: primaryColor,
-          ),
-          child: ListTile(
-            title: periods[index].isCancelled
-                ? Text(
-                    mySubjectNames[periods[index].name] ?? periods[index].name,
-                    style: TextStyle(
-                      decoration: TextDecoration.lineThrough,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  )
-                : Text(
-                    mySubjectNames[periods[index].name] ?? periods[index].name,
-                    style: TextStyle(color: textColor),
-                  ),
-            subtitle: Text(periods[index].startEndTimeString(),
-                style: TextStyle(color: textColor)),
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                periods[index].isCancelled
-                    ? Text(
-                        "calendar-page.cancelled".tr(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      )
-                    : Text(
-                        periods[index].teacher?.surName ?? '?',
-                        style: TextStyle(color: textColor),
-                      ),
-                const Spacer(),
-                Text(
-                  periods[index].room?.name ?? '?',
-                  style: TextStyle(color: textColor),
-                ),
-              ],
-            ),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return PeriodInfo(
-                    period: periods[index],
-                    textColor: textColor,
-                    backgroundColor: primaryColor,
-                    mySubjectNames: mySubjectNames,
-                  );
-                },
-              );
-            },
-          ),
+        return PeriodTile(
+          period: periods[index],
+          primaryColor: primaryColor,
+          periods: periods,
+          mySubjectNames: mySubjectNames,
+          textColor: textColor,
         );
       },
     );

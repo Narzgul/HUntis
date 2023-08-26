@@ -10,6 +10,7 @@ class Calendar extends StatefulWidget {
   final Session untisSession;
   final Schoolyear schoolYear;
   final List<Period> timetable;
+  final Timegrid timegrid;
   final List<String> mySubjects;
   final Map<String, Color> mySubjectColors;
   final Map<String, String> mySubjectNames;
@@ -19,6 +20,7 @@ class Calendar extends StatefulWidget {
     required this.untisSession,
     required this.schoolYear,
     required this.timetable,
+    required this.timegrid,
     required this.mySubjects,
     required this.mySubjectColors,
     required this.mySubjectNames,
@@ -253,6 +255,7 @@ class _CalendarState extends State<Calendar> {
                             periods: selectedPeriods,
                             mySubjectColors: widget.mySubjectColors,
                             mySubjectNames: widget.mySubjectNames,
+                            timegrid: widget.timegrid,
                           );
                         }
                       } else {
