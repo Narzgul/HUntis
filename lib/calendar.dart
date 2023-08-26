@@ -29,7 +29,6 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  late final ValueNotifier<List<Period>> _selectedPeriods;
   late final ValueNotifier<DateTime> _selectedDayChanged;
   CalendarFormat calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay, _selectedDay;

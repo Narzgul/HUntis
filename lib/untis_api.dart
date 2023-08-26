@@ -450,7 +450,7 @@ class Session {
                 rawTimegrid.firstWhere((element) => (element["day"] == day));
             List<dynamic> dayData = dayDict["timeUnits"];
 
-            List.generate(
+            return List.generate(
               dayData.length,
               (timePeriod) => List.generate(
                 2,
@@ -468,7 +468,6 @@ class Session {
           } else {
             return null;
           }
-          return null;
         },
       ),
     );
@@ -640,7 +639,7 @@ class Session {
       return asStudents.reversed.toList();
     }
 
-    var bestForenameMatches, bestSurnameMatches;
+    List<Student>? bestForenameMatches, bestSurnameMatches;
     if (forename != null) {
       bestForenameMatches = bestMatchesFinder.call(forename, false);
     }
