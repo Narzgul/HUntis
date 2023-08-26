@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:huntis/components/period_list.dart';
 import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
@@ -250,10 +251,9 @@ class _CalendarState extends State<Calendar> {
                           }
                         } else {
                           // Got lessons for this day
-                          return PeriodList(
-                            periods: selectedPeriods,
-                            mySubjectColors: widget.mySubjectColors,
-                            mySubjectNames: widget.mySubjectNames,
+                          return SfCalendar(
+                            view: CalendarView.day,
+                            
                           );
                         }
                       } else {
