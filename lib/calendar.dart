@@ -240,7 +240,7 @@ class _CalendarState extends State<Calendar> {
                           } else {
                             // No lessons found for this day
                             return Container(
-                              color: Colors.grey[300],
+                              color: Theme.of(context).colorScheme.background,
                               // Also makes whole area draggable
                               child: Center(
                                 child: Text("messages.no-lessons".tr()),
