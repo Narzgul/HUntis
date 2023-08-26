@@ -15,8 +15,8 @@
 - [ ] Multiple users / filter lists
 
 ## Custom Day View
-- Use TimeGrid for times dayStart & dayEnd, start & end of each timeUnit
-- Stack
-  - CustomPainter for Hour Lines on start & end of timeUnit
-  - Positioned Widget to position Periods on the timeline
-  - CustomPainter for Live Time Indicator
+- [X] Use TimeGrid for times dayStart & dayEnd, start & end of each timeUnit
+- [X] Stack
+  - [ ] CustomPainter for Hour Lines on start & end of timeUnit
+  - [X] Positioned Widget to position Periods on the timeline
+  - [ ] CustomPainter for Live Time Indicator (mby IgnorePointer)

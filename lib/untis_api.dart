@@ -839,6 +839,9 @@ class DayTime {
   int hour, minute;
 
   DayTime(this.hour, this.minute);
+  DayTime.fromDateTime(DateTime dateTime)
+      : hour = dateTime.hour,
+        minute = dateTime.minute;
 
   @override
   String toString() {

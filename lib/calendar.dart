@@ -251,11 +251,15 @@ class _CalendarState extends State<Calendar> {
                           }
                         } else {
                           // Got lessons for this day
-                          return PeriodList(
-                            periods: selectedPeriods,
-                            mySubjectColors: widget.mySubjectColors,
-                            mySubjectNames: widget.mySubjectNames,
-                            timegrid: widget.timegrid,
+                          return Container(
+                            color: Theme.of(context).colorScheme.background,
+                            // Also makes whole area draggable
+                            child: PeriodList(
+                              periods: selectedPeriods,
+                              mySubjectColors: widget.mySubjectColors,
+                              mySubjectNames: widget.mySubjectNames,
+                              timeGrid: widget.timegrid,
+                            ),
                           );
                         }
                       } else {

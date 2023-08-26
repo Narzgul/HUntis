@@ -7,7 +7,6 @@ import '../untis_api.dart';
 class PeriodTile extends StatelessWidget {
   const PeriodTile({
     super.key,
-    required this.periods,
     required this.primaryColor,
     required this.mySubjectNames,
     required this.textColor, required this.period,
@@ -15,7 +14,6 @@ class PeriodTile extends StatelessWidget {
 
   final Period period;
   final Color primaryColor;
-  final List<Period> periods;
   final Map<String, String> mySubjectNames;
   final Color textColor;
 
@@ -24,10 +22,9 @@ class PeriodTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: 12.0,
-        vertical: 4.0,
+        vertical: 8.0,
       ),
       decoration: BoxDecoration(
-        border: Border.all(),
         borderRadius: BorderRadius.circular(12.0),
         color: primaryColor,
       ),
