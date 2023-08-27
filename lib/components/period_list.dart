@@ -86,6 +86,7 @@ class _PeriodListState extends State<PeriodList> {
                   primaryColor: primaryColor,
                   mySubjectNames: widget.mySubjectNames,
                   textColor: textColor,
+                  width: constraints.maxWidth,
                 ),
               );
             },
