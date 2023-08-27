@@ -9,7 +9,8 @@ class PeriodTile extends StatelessWidget {
     super.key,
     required this.primaryColor,
     required this.mySubjectNames,
-    required this.textColor, required this.period,
+    required this.textColor,
+    required this.period,
   });
 
   final Period period;
@@ -20,10 +21,6 @@ class PeriodTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 12.0,
-        vertical: 8.0,
-      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
         color: primaryColor,
@@ -31,17 +28,17 @@ class PeriodTile extends StatelessWidget {
       child: ListTile(
         title: period.isCancelled
             ? Text(
-          mySubjectNames[period.name] ?? period.name,
-          style: TextStyle(
-            decoration: TextDecoration.lineThrough,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        )
+                mySubjectNames[period.name] ?? period.name,
+                style: TextStyle(
+                  decoration: TextDecoration.lineThrough,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              )
             : Text(
-          mySubjectNames[period.name] ?? period.name,
-          style: TextStyle(color: textColor),
-        ),
+                mySubjectNames[period.name] ?? period.name,
+                style: TextStyle(color: textColor),
+              ),
         subtitle: Text(period.startEndTimeString(),
             style: TextStyle(color: textColor)),
         trailing: Column(
@@ -50,16 +47,16 @@ class PeriodTile extends StatelessWidget {
           children: [
             period.isCancelled
                 ? Text(
-              "calendar-page.cancelled".tr(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            )
+                    "calendar-page.cancelled".tr(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  )
                 : Text(
-              period.teacher?.surName ?? '?',
-              style: TextStyle(color: textColor),
-            ),
+                    period.teacher?.surName ?? '?',
+                    style: TextStyle(color: textColor),
+                  ),
             const Spacer(),
             Text(
               period.room?.name ?? '?',
@@ -84,4 +81,3 @@ class PeriodTile extends StatelessWidget {
     );
   }
 }
-

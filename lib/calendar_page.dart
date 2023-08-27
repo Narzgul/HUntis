@@ -17,7 +17,7 @@ class _CalendarPageState extends State<CalendarPage> {
   late Session untisSession;
   late Schoolyear schoolYear;
   late List<Period> timetable;
-  late Timegrid timegrid;
+  late TimeGrid timegrid;
   late List<String> mySubjects;
   late Map<String, Color> mySubjectColors;
   late Map<String, String> mySubjectNames;

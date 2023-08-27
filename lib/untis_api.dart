@@ -434,14 +434,14 @@ class Session {
     });
   }
 
-  Future<Timegrid> getTimegrid({bool useCache = true}) async {
+  Future<TimeGrid> getTimegrid({bool useCache = true}) async {
     List<dynamic> rawTimegrid =
         await _request(_postify("getTimegridUnits", {}), useCache: useCache);
     return _parseTimegrid(rawTimegrid);
   }
 
-  Timegrid _parseTimegrid(List<dynamic> rawTimegrid) {
-    return Timegrid._fromList(
+  TimeGrid _parseTimegrid(List<dynamic> rawTimegrid) {
+    return TimeGrid._fromList(
       List.generate(
         7,
         (day) {
@@ -755,7 +755,7 @@ class Schoolyear {
       "Schoolyear<id:$id, name:$name, startDate:$startDate, endDate:$startDate>";
 }
 
-class Timegrid {
+class TimeGrid {
   final List<List<DayTime>>? monday,
       tuesday,
       wednesday,
@@ -764,7 +764,7 @@ class Timegrid {
       saturday,
       sunday;
 
-  Timegrid._(
+  TimeGrid._(
     this.monday,
     this.tuesday,
     this.thursday,
@@ -773,8 +773,8 @@ class Timegrid {
     this.saturday,
     this.sunday,
   );
-  factory Timegrid._fromList(List<List<List<DayTime>>?> list) {
-    return Timegrid._(
+  factory TimeGrid._fromList(List<List<List<DayTime>>?> list) {
+    return TimeGrid._(
         list[2], list[3], list[4], list[5], list[6], list[0], list[1]);
   }
 
@@ -783,6 +783,11 @@ class Timegrid {
       [monday, tuesday, wednesday, thursday, friday, saturday, sunday],
     );
   }
+
+  @override
+  String toString() => "TimeGrid<monday:$monday, tuesday:$tuesday, "
+      "wednesday:$wednesday, thursday:$thursday, friday:$friday, "
+      "saturday:$saturday, sunday:$sunday>";
 }
 
 class Student {
@@ -850,10 +855,9 @@ class DayTime {
       return value.toString();
     }
 
-    final String hourLabel = addLeadingZeroIfNeeded(hour);
     final String minuteLabel = addLeadingZeroIfNeeded(minute);
 
-    return '$DayTime($hourLabel:$minuteLabel)';
+    return '$hour:$minuteLabel';
   }
 }
 

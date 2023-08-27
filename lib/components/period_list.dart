@@ -7,7 +7,7 @@ class PeriodList extends StatefulWidget {
   final List<Period> periods;
   final Map<String, Color> mySubjectColors;
   final Map<String, String> mySubjectNames;
-  final Timegrid timeGrid;
+  final TimeGrid timeGrid;
 
   const PeriodList({
     Key? key,
@@ -58,40 +58,37 @@ class _PeriodListState extends State<PeriodList> {
         totalHeight = constraints.maxHeight;
         heightPerMinute =
             totalHeight / (getMinutes(dayEnd) - getMinutes(dayStart));
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Stack(
-            children: List.generate(
-              widget.periods.length,
-              (index) {
-                Period period = widget.periods[index];
-                Color primaryColor = Theme.of(context).colorScheme.primary;
-                if (period.isCancelled) {
-                  primaryColor = Colors.blue;
-                } else if (widget.mySubjectColors.containsKey(period.name)) {
-                  primaryColor = widget.mySubjectColors[period.name]!;
-                }
-                Color textColor = _getBestTextColor(primaryColor);
+        return Stack(
+          children: List.generate(
+            widget.periods.length,
+            (index) {
+              Period period = widget.periods[index];
+              Color primaryColor = Theme.of(context).colorScheme.primary;
+              if (period.isCancelled) {
+                primaryColor = Colors.blue;
+              } else if (widget.mySubjectColors.containsKey(period.name)) {
+                primaryColor = widget.mySubjectColors[period.name]!;
+              }
+              Color textColor = _getBestTextColor(primaryColor);
 
-                double heightFromTop = heightPerMinute *
-                    (getMinutes(DayTime.fromDateTime(period.startTime)) -
-                        getMinutes(dayStart));
-                double heightFromBottom = heightPerMinute *
-                    (getMinutes(dayEnd) -
-                        getMinutes(DayTime.fromDateTime(period.endTime)));
-                return Positioned(
-                  top: heightFromTop,
-                  bottom: heightFromBottom,
-                  width: constraints.maxWidth,
-                  child: PeriodTile(
-                    period: period,
-                    primaryColor: primaryColor,
-                    mySubjectNames: widget.mySubjectNames,
-                    textColor: textColor,
-                  ),
-                );
-              },
-            ),
+              double heightFromTop = heightPerMinute *
+                  (getMinutes(DayTime.fromDateTime(period.startTime)) -
+                      getMinutes(dayStart));
+              double heightFromBottom = heightPerMinute *
+                  (getMinutes(dayEnd) -
+                      getMinutes(DayTime.fromDateTime(period.endTime)));
+              return Positioned(
+                top: heightFromTop,
+                bottom: heightFromBottom,
+                width: constraints.maxWidth,
+                child: PeriodTile(
+                  period: period,
+                  primaryColor: primaryColor,
+                  mySubjectNames: widget.mySubjectNames,
+                  textColor: textColor,
+                ),
+              );
+            },
           ),
         );
       },
