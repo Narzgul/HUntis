@@ -212,9 +212,18 @@ class Session {
       );
     }
 
+    // Get school year to check if the dates are in the same school year
+    List<Schoolyear> allSchoolYears = await getSchoolyears();
+    allSchoolYears.sort((a, b) => a.endDate.compareTo(b.endDate));
+    Schoolyear schoolYear = allSchoolYears.last;
+
     if (startDate.isBefore(_timetableStart!)) {
       print('Getting new from $startDate to ${_timetableStart!}');
-      if (_timetableStart!.difference(startDate).inDays < 7) {
+      if (_timetableStart!.difference(startDate).inDays < 7 &&
+          _timetableStart!
+                  .subtract(const Duration(days: 7))
+                  .compareTo(schoolYear.startDate) >=
+              0) {
         _timetableStart = _timetableStart!.subtract(const Duration(days: 7));
         await getTimetable(
           userId!,
@@ -232,7 +241,11 @@ class Session {
     }
     if (endDate.isAfter(_timetableEnd!)) {
       print('Getting new from ${_timetableEnd!} to $endDate');
-      if (endDate.difference(_timetableEnd!).inDays < 7) {
+      if (endDate.difference(_timetableEnd!).inDays < 7 &&
+          _timetableEnd!
+              .add(const Duration(days: 7))
+              .compareTo(schoolYear.endDate) <=
+              0) {
         _timetableEnd = _timetableEnd!.add(const Duration(days: 7));
         await getTimetable(
           userId!,
