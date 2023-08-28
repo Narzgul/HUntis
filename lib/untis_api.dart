@@ -204,8 +204,8 @@ class Session {
     print('Getting periods from $startDate to $endDate');
     if (_timetableStart == null || _timetableEnd == null) {
       print('Getting new from $startDate to $endDate');
-      _timetableStart = startDate.add(endDate.timeZoneOffset);
-      _timetableEnd = endDate.add(endDate.timeZoneOffset);
+      _timetableStart = startDate;
+      _timetableEnd = endDate;
 
       return getTimetable(
         userId!,
@@ -266,9 +266,12 @@ class Session {
     return Future.value(
       _timetable
           .where(
-            (element) =>
-                isSameDay(element.startTime, startDate) &&
-                isSameDay(element.endTime, endDate!),
+            (element) {
+              if (element.startTime.compareTo(startDate) >= 0 &&
+                  element.startTime.compareTo(endDate!) <= 0) return true;
+              return isSameDay(element.startTime, startDate) ||
+                  isSameDay(element.startTime, endDate);
+            },
           )
           .toList(),
     );
