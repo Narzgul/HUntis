@@ -1,20 +1,32 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:huntis/components/period_info.dart';
+import 'package:huntis/components/period_tile.dart';
 
 import '../untis_api.dart';
 
-class PeriodList extends StatelessWidget {
+class PeriodList extends StatefulWidget {
   final List<Period> periods;
   final Map<String, Color> mySubjectColors;
   final Map<String, String> mySubjectNames;
+  final TimeGrid timeGrid;
 
   const PeriodList({
     Key? key,
     required this.periods,
     required this.mySubjectColors,
     required this.mySubjectNames,
+    required this.timeGrid,
   }) : super(key: key);
+
+  @override
+  State<PeriodList> createState() => _PeriodListState();
+}
+
+class _PeriodListState extends State<PeriodList> {
+  late DayTime dayStart, dayEnd;
+
+  late double totalHeight;
+
+  late double heightPerMinute;
 
   Color _getBestTextColor(Color background) {
     // Convert the rgb color values to a 0 to 1 scale
@@ -30,80 +42,52 @@ class PeriodList extends StatelessWidget {
     return Colors.white;
   }
 
+  int getMinutes(DayTime time) => time.hour * 60 + time.minute;
+
+  void init() {
+    int weekday = widget.periods[0].startTime.weekday; // Monday = 1, Sunday = 7
+    dayStart = widget.timeGrid.asList()[weekday - 1].first.first;
+    dayEnd = widget.timeGrid.asList()[weekday - 1].last.last;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: periods.length,
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        Color primaryColor = Theme.of(context).colorScheme.primary;
-        if (periods[index].isCancelled) {
-          primaryColor = Colors.blue;
-        } else if (mySubjectColors.containsKey(periods[index].name)) {
-          primaryColor = mySubjectColors[periods[index].name]!;
-        }
-        Color textColor = _getBestTextColor(primaryColor);
+    init();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        totalHeight = constraints.maxHeight;
+        heightPerMinute =
+            totalHeight / (getMinutes(dayEnd) - getMinutes(dayStart));
+        return Stack(
+          children: List.generate(
+            widget.periods.length,
+            (index) {
+              Period period = widget.periods[index];
+              Color primaryColor = Theme.of(context).colorScheme.primary;
+              if (period.isCancelled) {
+                primaryColor = Colors.blue;
+              } else if (widget.mySubjectColors.containsKey(period.name)) {
+                primaryColor = widget.mySubjectColors[period.name]!;
+              }
+              Color textColor = _getBestTextColor(primaryColor);
 
-        return Container(
-          margin: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 4.0,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(12.0),
-            color: primaryColor,
-          ),
-          child: ListTile(
-            title: periods[index].isCancelled
-                ? Text(
-                    mySubjectNames[periods[index].name] ?? periods[index].name,
-                    style: TextStyle(
-                      decoration: TextDecoration.lineThrough,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  )
-                : Text(
-                    mySubjectNames[periods[index].name] ?? periods[index].name,
-                    style: TextStyle(color: textColor),
-                  ),
-            subtitle: Text(periods[index].startEndTimeString(),
-                style: TextStyle(color: textColor)),
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                periods[index].isCancelled
-                    ? Text(
-                        "calendar-page.cancelled".tr(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      )
-                    : Text(
-                        periods[index].teacher?.surName ?? '?',
-                        style: TextStyle(color: textColor),
-                      ),
-                const Spacer(),
-                Text(
-                  periods[index].room?.name ?? '?',
-                  style: TextStyle(color: textColor),
+              double heightFromTop = heightPerMinute *
+                  (getMinutes(DayTime.fromDateTime(period.startTime)) -
+                      getMinutes(dayStart));
+              double heightFromBottom = heightPerMinute *
+                  (getMinutes(dayEnd) -
+                      getMinutes(DayTime.fromDateTime(period.endTime)));
+              return Positioned(
+                top: heightFromTop,
+                bottom: heightFromBottom,
+                width: constraints.maxWidth,
+                child: PeriodTile(
+                  period: period,
+                  primaryColor: primaryColor,
+                  mySubjectNames: widget.mySubjectNames,
+                  textColor: textColor,
+                  width: constraints.maxWidth,
                 ),
-              ],
-            ),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return PeriodInfo(
-                    period: periods[index],
-                    textColor: textColor,
-                    backgroundColor: primaryColor,
-                    mySubjectNames: mySubjectNames,
-                  );
-                },
               );
             },
           ),

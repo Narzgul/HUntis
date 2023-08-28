@@ -17,6 +17,7 @@ class _CalendarPageState extends State<CalendarPage> {
   late Session untisSession;
   late Schoolyear schoolYear;
   late List<Period> timetable;
+  late TimeGrid timegrid;
   late List<String> mySubjects;
   late Map<String, Color> mySubjectColors;
   late Map<String, String> mySubjectNames;
@@ -70,6 +71,8 @@ class _CalendarPageState extends State<CalendarPage> {
     timetable = timetable
         .where((element) => mySubjects.contains(element.name))
         .toList();
+
+    timegrid = await untisSession.getTimegrid();
 
     mySubjectColors = _getSubjectColors();
     mySubjectNames = _getSubjectNames();
@@ -131,6 +134,7 @@ class _CalendarPageState extends State<CalendarPage> {
               untisSession: untisSession,
               schoolYear: schoolYear,
               timetable: timetable,
+              timegrid: timegrid,
               mySubjects: mySubjects,
               mySubjectColors: mySubjectColors,
               mySubjectNames: mySubjectNames,

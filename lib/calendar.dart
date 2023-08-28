@@ -6,10 +6,13 @@ import 'package:huntis/untis_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'components/time_bar.dart';
+
 class Calendar extends StatefulWidget {
   final Session untisSession;
   final Schoolyear schoolYear;
   final List<Period> timetable;
+  final TimeGrid timegrid;
   final List<String> mySubjects;
   final Map<String, Color> mySubjectColors;
   final Map<String, String> mySubjectNames;
@@ -19,6 +22,7 @@ class Calendar extends StatefulWidget {
     required this.untisSession,
     required this.schoolYear,
     required this.timetable,
+    required this.timegrid,
     required this.mySubjects,
     required this.mySubjectColors,
     required this.mySubjectNames,
@@ -249,10 +253,36 @@ class _CalendarState extends State<Calendar> {
                           }
                         } else {
                           // Got lessons for this day
-                          return PeriodList(
-                            periods: selectedPeriods,
-                            mySubjectColors: widget.mySubjectColors,
-                            mySubjectNames: widget.mySubjectNames,
+                          return Container(
+                            color: Theme.of(context).colorScheme.background,
+                            // Also makes whole area draggable
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 50,
+                                        child: TimeBar(
+                                          timeGrid: widget.timegrid,
+                                          periods: selectedPeriods,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: constraints.maxWidth - 50,
+                                        child: PeriodList(
+                                          periods: selectedPeriods,
+                                          mySubjectColors: widget.mySubjectColors,
+                                          mySubjectNames: widget.mySubjectNames,
+                                          timeGrid: widget.timegrid,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
                           );
                         }
                       } else {

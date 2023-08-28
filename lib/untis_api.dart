@@ -169,6 +169,8 @@ class Session {
 
     isLoggedIn = true;
     _timetable = [];
+    _timetableStart = null;
+    _timetableEnd = null;
     return 200;
   }
 
@@ -202,8 +204,8 @@ class Session {
     print('Getting periods from $startDate to $endDate');
     if (_timetableStart == null || _timetableEnd == null) {
       print('Getting new from $startDate to $endDate');
-      _timetableStart = startDate.add(endDate.timeZoneOffset);
-      _timetableEnd = endDate.add(endDate.timeZoneOffset);
+      _timetableStart = startDate;
+      _timetableEnd = endDate;
 
       return getTimetable(
         userId!,
@@ -212,9 +214,18 @@ class Session {
       );
     }
 
+    // Get school year to check if the dates are in the same school year
+    List<Schoolyear> allSchoolYears = await getSchoolyears();
+    allSchoolYears.sort((a, b) => a.endDate.compareTo(b.endDate));
+    Schoolyear schoolYear = allSchoolYears.last;
+
     if (startDate.isBefore(_timetableStart!)) {
       print('Getting new from $startDate to ${_timetableStart!}');
-      if (_timetableStart!.difference(startDate).inDays < 7) {
+      if (_timetableStart!.difference(startDate).inDays < 7 &&
+          _timetableStart!
+                  .subtract(const Duration(days: 7))
+                  .compareTo(schoolYear.startDate) >=
+              0) {
         _timetableStart = _timetableStart!.subtract(const Duration(days: 7));
         await getTimetable(
           userId!,
@@ -232,7 +243,11 @@ class Session {
     }
     if (endDate.isAfter(_timetableEnd!)) {
       print('Getting new from ${_timetableEnd!} to $endDate');
-      if (endDate.difference(_timetableEnd!).inDays < 7) {
+      if (endDate.difference(_timetableEnd!).inDays < 7 &&
+          _timetableEnd!
+              .add(const Duration(days: 7))
+              .compareTo(schoolYear.endDate) <=
+              0) {
         _timetableEnd = _timetableEnd!.add(const Duration(days: 7));
         await getTimetable(
           userId!,
@@ -251,9 +266,12 @@ class Session {
     return Future.value(
       _timetable
           .where(
-            (element) =>
-                isSameDay(element.startTime, startDate) &&
-                isSameDay(element.endTime, endDate!),
+            (element) {
+              if (element.startTime.compareTo(startDate) >= 0 &&
+                  element.startTime.compareTo(endDate!) <= 0) return true;
+              return isSameDay(element.startTime, startDate) ||
+                  isSameDay(element.startTime, endDate);
+            },
           )
           .toList(),
     );
@@ -434,14 +452,14 @@ class Session {
     });
   }
 
-  Future<Timegrid> getTimegrid({bool useCache = true}) async {
+  Future<TimeGrid> getTimegrid({bool useCache = true}) async {
     List<dynamic> rawTimegrid =
         await _request(_postify("getTimegridUnits", {}), useCache: useCache);
     return _parseTimegrid(rawTimegrid);
   }
 
-  Timegrid _parseTimegrid(List<dynamic> rawTimegrid) {
-    return Timegrid._fromList(
+  TimeGrid _parseTimegrid(List<dynamic> rawTimegrid) {
+    return TimeGrid._fromList(
       List.generate(
         7,
         (day) {
@@ -755,7 +773,7 @@ class Schoolyear {
       "Schoolyear<id:$id, name:$name, startDate:$startDate, endDate:$startDate>";
 }
 
-class Timegrid {
+class TimeGrid {
   final List<List<DayTime>>? monday,
       tuesday,
       wednesday,
@@ -764,7 +782,7 @@ class Timegrid {
       saturday,
       sunday;
 
-  Timegrid._(
+  TimeGrid._(
     this.monday,
     this.tuesday,
     this.thursday,
@@ -773,8 +791,8 @@ class Timegrid {
     this.saturday,
     this.sunday,
   );
-  factory Timegrid._fromList(List<List<List<DayTime>>?> list) {
-    return Timegrid._(
+  factory TimeGrid._fromList(List<List<List<DayTime>>?> list) {
+    return TimeGrid._(
         list[2], list[3], list[4], list[5], list[6], list[0], list[1]);
   }
 
@@ -783,6 +801,11 @@ class Timegrid {
       [monday, tuesday, wednesday, thursday, friday, saturday, sunday],
     );
   }
+
+  @override
+  String toString() => "TimeGrid<monday:$monday, tuesday:$tuesday, "
+      "wednesday:$wednesday, thursday:$thursday, friday:$friday, "
+      "saturday:$saturday, sunday:$sunday>";
 }
 
 class Student {
@@ -839,6 +862,9 @@ class DayTime {
   int hour, minute;
 
   DayTime(this.hour, this.minute);
+  DayTime.fromDateTime(DateTime dateTime)
+      : hour = dateTime.hour,
+        minute = dateTime.minute;
 
   @override
   String toString() {
@@ -847,10 +873,9 @@ class DayTime {
       return value.toString();
     }
 
-    final String hourLabel = addLeadingZeroIfNeeded(hour);
     final String minuteLabel = addLeadingZeroIfNeeded(minute);
 
-    return '$DayTime($hourLabel:$minuteLabel)';
+    return '$hour:$minuteLabel';
   }
 }
 
