@@ -169,6 +169,8 @@ class Session {
 
     isLoggedIn = true;
     _timetable = [];
+    _timetableStart = null;
+    _timetableEnd = null;
     return 200;
   }
 
