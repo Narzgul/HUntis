@@ -494,10 +494,10 @@ packages:
     dependency: "direct main"
     description:
       name: time_planner
-      sha256: "48b21412ed4af53d0b304424290028cbac2f1900a7568c7db091c692eabb6cb5"
+      sha256: "2d3ac88b6d29c509033256a415bbc9e5b786d4c2201bbb04a4ee23ba668b3e7b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   typed_data:
     dependency: transitive
     description:

@@ -13,7 +13,8 @@
     "info": "Info",
     "room": "Raum",
     "time": "Uhrzeit",
-    "cancelled": "Entfällt"
+    "cancelled": "Entfällt",
+    "today": "Heute"
   },
   "settings": "Einstellungen",
   "settings-page": {

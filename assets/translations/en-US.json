@@ -13,7 +13,8 @@
     "info": "Info",
     "room": "Room",
     "time": "Time",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "today": "Today"
   },
   "settings": "Settings",
   "settings-page": {

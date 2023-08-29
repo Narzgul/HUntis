@@ -57,6 +57,34 @@ class _CalendarState extends State<Calendar> {
     _selectedDayChanged = ValueNotifier(_focusedDay);
   }
 
+  bool setDay(DateTime day) {
+    if (day.isBefore(widget.schoolYear.startDate) ||
+        day.isAfter(widget.schoolYear.endDate)) {
+      return false;
+    } else {
+      setState(() {
+        _selectedDay = day;
+        _focusedDay = day;
+        _selectedDayChanged.value = day;
+      });
+      return true;
+    }
+  }
+
+  bool moveDay(int days) {
+    SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    bool didChange = setDay(_selectedDay.add(Duration(days: days)));
+    if (prefs.getBool('skipWeekends') ?? false) {
+      // Skip weekends
+      while ((_selectedDay.weekday == DateTime.saturday ||
+              _selectedDay.weekday == DateTime.sunday) &&
+          didChange) {
+        didChange = setDay(_selectedDay.add(Duration(days: days)));
+      }
+    }
+    return didChange;
+  }
+
   Future<List<Period>> _getEventsForDay(DateTime day) async {
     List<Period> periods = [];
 
@@ -74,9 +102,8 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.background,
-      child: Column(
+    return Scaffold(
+      body: Column(
         children: [
           TableCalendar<Period>(
             daysOfWeekStyle: DaysOfWeekStyle(
@@ -145,14 +172,7 @@ class _CalendarState extends State<Calendar> {
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
-            onDaySelected: (selectedDay, focusedDay) {
-              if (!isSameDay(_selectedDay, selectedDay)) {
-                // Call `setState()` when updating the selected day
-                setState(() {
-                  _selectedDay = selectedDay;
-                });
-              }
-            },
+            onDaySelected: (selectedDay, focusedDay) => setDay(selectedDay),
             onFormatChanged: (format) {
               if (calendarFormat != format) {
                 // Call `setState()` when updating calendar format
@@ -171,50 +191,15 @@ class _CalendarState extends State<Calendar> {
               onHorizontalDragEnd: (details) {
                 if (details.primaryVelocity! > 0) {
                   // Swipe left
-                  setState(() {
-                    _selectedDay =
-                        _selectedDay.subtract(const Duration(days: 1));
-
-                    SharedPreferences prefs =
-                        GetIt.instance<SharedPreferences>();
-                    if (prefs.getBool('skipWeekends') ?? false) {
-                      // Skip weekends
-                      while (_selectedDay.weekday == DateTime.saturday ||
-                          _selectedDay.weekday == DateTime.sunday) {
-                        _selectedDay =
-                            _selectedDay.subtract(const Duration(days: 1));
-                      }
-                    }
-                    if (_selectedDay.isBefore(widget.schoolYear.startDate)) {
-                      _selectedDay = widget.schoolYear.startDate;
-                    }
-                  });
+                  moveDay(-1);
                 } else if (details.primaryVelocity! < 0) {
                   // Swipe right
-                  setState(() {
-                    _selectedDay = _selectedDay.add(const Duration(days: 1));
-
-                    SharedPreferences prefs =
-                        GetIt.instance<SharedPreferences>();
-                    if (prefs.getBool('skipWeekends') ?? false) {
-                      // Skip weekends
-                      while (_selectedDay.weekday == DateTime.saturday ||
-                          _selectedDay.weekday == DateTime.sunday) {
-                        _selectedDay =
-                            _selectedDay.add(const Duration(days: 1));
-                      }
-                    }
-                    if (_selectedDay.isAfter(widget.schoolYear.endDate)) {
-                      _selectedDay = widget.schoolYear.endDate;
-                    }
-                  });
+                  moveDay(1);
                 }
-                _focusedDay = _selectedDay;
               },
               child: ValueListenableBuilder<DateTime>(
                 valueListenable: _selectedDayChanged,
                 builder: (context, selectedDay, _) {
-                  // selectedDay is not updated, _selectedDay is (idk why)
                   if (widget.mySubjects.isEmpty) {
                     // No subjects set
                     return Container(
@@ -226,7 +211,7 @@ class _CalendarState extends State<Calendar> {
                     );
                   }
                   return FutureBuilder(
-                    future: _getEventsForDay(_selectedDay),
+                    future: _getEventsForDay(selectedDay),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Period>> snapshot) {
                       if (snapshot.hasData) {
@@ -273,7 +258,8 @@ class _CalendarState extends State<Calendar> {
                                         width: constraints.maxWidth - 50,
                                         child: PeriodList(
                                           periods: selectedPeriods,
-                                          mySubjectColors: widget.mySubjectColors,
+                                          mySubjectColors:
+                                              widget.mySubjectColors,
                                           mySubjectNames: widget.mySubjectNames,
                                           timeGrid: widget.timegrid,
                                         ),
@@ -303,6 +289,12 @@ class _CalendarState extends State<Calendar> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setDay(DateTime.now()),
+        tooltip: 'calendar-page.today'.tr(),
+        child: const Icon(Icons.today),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background,
     );
   }
 }
