@@ -25,12 +25,9 @@ class LoginButton extends ElevatedButton {
               ),
             );
 
-            if (getIt<Session>().isLoggedIn) {
-              await getIt<Session>().logout();
-            }
             int status = await getIt<Session>().login();
+            // Check if SnackBar can still be shown
             if (context.mounted) {
-              // Check if SnackBar can still be shown
               switch (status) {
                 case 401:
                   ScaffoldMessenger.of(context).showSnackBar(

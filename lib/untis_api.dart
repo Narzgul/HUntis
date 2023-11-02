@@ -71,36 +71,36 @@ class Session {
       {bool useCache = false}) async {
     var url = Uri.parse("https://$server/WebUntis/jsonrpc.do?school=$school");
     http.Response response;
-    String requestBodyAsString = jsonEncode(requestBody);
-
-    if (useCache && _cache.keys.contains(requestBodyAsString)) {
-      if (_cache[requestBodyAsString]!
-              .creationTime
-              .difference(DateTime.now())
-              .inMinutes >
-          cacheDisposeTime) {
-        _cache.remove(requestBodyAsString);
-        return await _request(requestBody, useCache: useCache);
-      }
-      response = _cache[requestBodyAsString]!.value;
-    } else {
+    LinkedHashMap<String, dynamic> responseBody;
+    bool retry = false;
+    do {
+      print("Requesting $requestBody");
       response = await _http.post(
         url,
-        body: requestBodyAsString,
+        body: jsonEncode(requestBody),
         headers: {"Cookie": "JSESSIONID=$_sessionId"},
       );
-    }
-
-    _cache[requestBodyAsString] = _CacheEntry(DateTime.now(), response);
-    if (_cache.length > cacheLengthMaximum) {
-      _cache.remove(_cache.keys.take(1).toList()[0].toString());
-    }
-
-    LinkedHashMap<String, dynamic> responseBody = jsonDecode(response.body);
+      responseBody = jsonDecode(response.body);
+      if ((response.statusCode != 200 || responseBody.containsKey("error")) &&
+          responseBody["error"]["code"] == -8520) {
+        if(await login() == 200) {
+          retry = true;
+          print("Retrying...");
+        } else {
+          retry = false;
+        }
+      } else {
+        retry = false;
+      }
+    } while (retry && maxRetries-- > 0);
 
     if (response.statusCode != 200 || responseBody.containsKey("error")) {
       if (responseBody["error"]["code"] == -8504) {
         // Bad credentials
+        return responseBody;
+      }
+      if (responseBody["error"]["code"] == -8520) {
+        // Not logged in
         return responseBody;
       }
       showDialog(
@@ -142,6 +142,7 @@ class Session {
   }
 
   Future<int> login() async {
+    print("Logging in...");
     var result = await _request(_postify("authenticate",
         {"user": username, "password": _password, "client": userAgent}));
 
@@ -245,8 +246,8 @@ class Session {
       print('Getting new from ${_timetableEnd!} to $endDate');
       if (endDate.difference(_timetableEnd!).inDays < 7 &&
           _timetableEnd!
-              .add(const Duration(days: 7))
-              .compareTo(schoolYear.endDate) <=
+                  .add(const Duration(days: 7))
+                  .compareTo(schoolYear.endDate) <=
               0) {
         _timetableEnd = _timetableEnd!.add(const Duration(days: 7));
         await getTimetable(
@@ -264,16 +265,14 @@ class Session {
       }
     }
     return Future.value(
-      _timetable
-          .where(
-            (element) {
-              if (element.startTime.compareTo(startDate) >= 0 &&
-                  element.startTime.compareTo(endDate!) <= 0) return true;
-              return isSameDay(element.startTime, startDate) ||
-                  isSameDay(element.startTime, endDate);
-            },
-          )
-          .toList(),
+      _timetable.where(
+        (element) {
+          if (element.startTime.compareTo(startDate) >= 0 &&
+              element.startTime.compareTo(endDate!) <= 0) return true;
+          return isSameDay(element.startTime, startDate) ||
+              isSameDay(element.startTime, endDate);
+        },
+      ).toList(),
     );
   }
 
@@ -379,6 +378,7 @@ class Session {
     }
 
     _timetable.addAll(timetable);
+    print("Returning ${timetable.length} periods");
     return timetable;
   }
 

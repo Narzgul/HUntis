@@ -107,12 +107,10 @@ class _CalendarState extends State<Calendar> {
         children: [
           TableCalendar<Period>(
             daysOfWeekStyle: DaysOfWeekStyle(
-              weekdayStyle: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              weekendStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
+              weekdayStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.secondary),
+              weekendStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onBackground),
             ),
             calendarStyle: CalendarStyle(
               selectedDecoration: BoxDecoration(
@@ -123,21 +121,16 @@ class _CalendarState extends State<Calendar> {
                 color: Theme.of(context).colorScheme.secondary,
                 shape: BoxShape.circle,
               ),
-              selectedTextStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-              todayTextStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSecondary,
-              ),
-              weekendTextStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              outsideTextStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              defaultTextStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
+              selectedTextStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              todayTextStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              weekendTextStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onBackground),
+              outsideTextStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onBackground),
+              defaultTextStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.onBackground),
               weekNumberTextStyle: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onBackground,
@@ -169,24 +162,19 @@ class _CalendarState extends State<Calendar> {
               CalendarFormat.twoWeeks: 'calendar-page.two-weeks'.tr(),
               CalendarFormat.month: 'calendar-page.month'.tr(),
             },
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) => setDay(selectedDay),
             onFormatChanged: (format) {
               if (calendarFormat != format) {
-                // Call `setState()` when updating calendar format
                 setState(() {
                   calendarFormat = format;
                 });
               }
             },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
           ),
           Expanded(
             child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
               // Swipe to change day
               onHorizontalDragEnd: (details) {
                 if (details.primaryVelocity! > 0) {
@@ -202,12 +190,8 @@ class _CalendarState extends State<Calendar> {
                 builder: (context, selectedDay, _) {
                   if (widget.mySubjects.isEmpty) {
                     // No subjects set
-                    return Container(
-                      color: Colors.red[300],
-                      // Also makes whole area draggable
-                      child: Center(
-                        child: Text("messages.set-subjects".tr()),
-                      ),
+                    return Center(
+                      child: Text("messages.set-subjects".tr()),
                     );
                   }
                   return FutureBuilder(
@@ -219,66 +203,49 @@ class _CalendarState extends State<Calendar> {
                         if (selectedPeriods.isEmpty) {
                           if (widget.timetable.isEmpty) {
                             // Got no date from the API
-                            return Container(
-                              color: Colors.red[300],
-                              // Also makes whole area draggable
-                              child: Center(
-                                child: Text("messages.no-api-data".tr()),
-                              ),
+                            return Center(
+                              child: Text("messages.no-api-data".tr()),
                             );
                           } else {
                             // No lessons found for this day
-                            return Container(
-                              color: Theme.of(context).colorScheme.background,
-                              // Also makes whole area draggable
-                              child: Center(
-                                child: Text("messages.no-lessons".tr()),
-                              ),
+                            return Center(
+                              child: Text("messages.no-lessons".tr()),
                             );
                           }
                         } else {
                           // Got lessons for this day
-                          return Container(
-                            color: Theme.of(context).colorScheme.background,
-                            // Also makes whole area draggable
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 50,
-                                        child: TimeBar(
-                                          timeGrid: widget.timegrid,
-                                          periods: selectedPeriods,
-                                        ),
+                          return Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 50,
+                                      child: TimeBar(
+                                        timeGrid: widget.timegrid,
+                                        periods: selectedPeriods,
                                       ),
-                                      SizedBox(
-                                        width: constraints.maxWidth - 50,
-                                        child: PeriodList(
-                                          periods: selectedPeriods,
-                                          mySubjectColors:
-                                              widget.mySubjectColors,
-                                          mySubjectNames: widget.mySubjectNames,
-                                          timeGrid: widget.timegrid,
-                                        ),
+                                    ),
+                                    SizedBox(
+                                      width: constraints.maxWidth - 50,
+                                      child: PeriodList(
+                                        periods: selectedPeriods,
+                                        mySubjectColors: widget.mySubjectColors,
+                                        mySubjectNames: widget.mySubjectNames,
+                                        timeGrid: widget.timegrid,
                                       ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           );
                         }
                       } else {
                         // Loading
-                        return Container(
-                          color: Colors.grey[300],
-                          // Also makes whole area draggable
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                        return const Center(
+                          child: CircularProgressIndicator(),
                         );
                       }
                     },
@@ -290,7 +257,8 @@ class _CalendarState extends State<Calendar> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => setDay(DateTime.now()),
+        //onPressed: () => setDay(DateTime.now()),
+        onPressed: () => GetIt.instance<Session>().logout(),
         tooltip: 'calendar-page.today'.tr(),
         child: const Icon(Icons.today),
       ),

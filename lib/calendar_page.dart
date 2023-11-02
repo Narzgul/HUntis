@@ -38,7 +38,9 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _doAPICalls() async {
     GetIt getIt = GetIt.instance;
     untisSession = getIt<Session>();
-    await untisSession.login();
+    if (!untisSession.isLoggedIn) {
+      await untisSession.login();
+    }
 
     // Get latest school year
     var allSchoolYears = await untisSession.getSchoolyears();
@@ -116,7 +118,7 @@ class _CalendarPageState extends State<CalendarPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('not-logged-in'.tr()),
+            Text('messages.not-logged-in'.tr()),
             LoginButton(context: context),
             ElevatedButton(
               onPressed: () => setState(() {}),
